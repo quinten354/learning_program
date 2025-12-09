@@ -290,7 +290,7 @@ def save_as_new_list(output, username, settings, filename = ''):
     while filename == '' or filename in os.listdir(ch_path('~/' + username + '/items')):
         try:
             s_out('This name already exist. Choose another name.')
-            filename = s_inp('What will be the new name?   > ', invoer = filename)
+            filename = s_inp('What will be the new name?   > ', input = filename)
         except KeyboardInterrupt:
             create = False
             break
@@ -314,7 +314,7 @@ def save_and_learn(output, username, settings, filename = ''):
     while filename == '' or filename in os.listdir(ch_path('~/' + username + '/items')):
         try:
             s_out('This name already exist. Choose another name.')
-            filename = s_inp('What will be the new name?   > ', invoer = filename)
+            filename = s_inp('What will be the new name?   > ', input = filename)
         except KeyboardInterrupt:
             create = False
             break
@@ -349,7 +349,7 @@ def save_and_review(output, username, settings, filename = ''):
     while filename == '' or filename in os.listdir(ch_path('~/' + username + '/items')):
         try:
             s_out('This name already exist. Choose another name.')
-            filename = s_inp('What will be the new name?   > ', invoer = filename)
+            filename = s_inp('What will be the new name?   > ', input = filename)
         except KeyboardInterrupt:
             create = False
             break

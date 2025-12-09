@@ -48,7 +48,11 @@ def choose_name():
  
                 try:
                     # calculate the time ago
-                    last_time_learned = get_list(list_users[name], 'userinfo')[1]
+                    data = get_list(list_users[name], 'userinfo')
+                    if len(data) == 5:
+                        last_time_learned = data[1]
+                    else:
+                        last_time_learned = 0
    
                     # print the time ago
                     s_out(' ' * ((os.get_terminal_size().columns - len(list_users[name])) - 14), end = '')
@@ -145,13 +149,13 @@ def choose_name():
         s_out('There are none users. You must create one.')
         s_out()
 
-    name = s_inp('Type your new username   > ')
+    name = s_inp('Type your new username.   > ')
     while name == '' or '/' in name or name in os.listdir(ch_path('~/')):
         if '/' in name:
             s_out('\x1b[1;49;31mCan\'t use this character: \'/\'\x1b[0m')
         if name in os.listdir(ch_path('~/')):
             s_out('\x1b[1;49;31mThis name already exist. Choose another name.\x1b[0m')
-        name = s_inp('Type je nieuwe gebruiker in   > ')
+        name = s_inp('Type your new username.   > ')
     return name
 
 def login(name = ''):   
@@ -202,7 +206,7 @@ def menu(name, userinfo):
         options = ['l', 'h', 'u', 'c', 'b', 's', 'q', 'd', 'o', 'U']
 
         # show options
-        s_out('Wat wil je doen?')
+        s_out('What do you want to do?')
         s_out('Learn --> l')
         s_out('Help menu --> h')
         s_out('See userinfo --> u')

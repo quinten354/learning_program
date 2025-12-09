@@ -7,7 +7,7 @@ from extern.save_input import save_input as s_inp
 from extern.timeout import timeout
 from extern.save_output import save_output as s_out, cls
 
-from manage_files import get_list, ch_path, overwrite, move
+from manage_files import get_list, ch_path, overwrite, move, delete_file, delete_all
 from questions import type_ex, multiple_choise, sentence, retype, show_word
 from functions import is_warned, warn, sort, ch_time, get_list_index, show_target_info, show_item_settings, select, lower, no_punctuation_marks, no_accents, show_learn_process, get_procent, get_scores
 from solve import solve
@@ -640,9 +640,9 @@ def change_words(username, filename, list_item, settings):
                 if settings[21]:
                     if lower(no_punctuation_marks(no_accents(txt_search))) in (str(wordnumber + 1) + ': '):
                         show = True
-                    elif lower(no_punctuation_marks(no_accents(txt_search))) in (str(list_item[wordnumber][0]) + ': '):
+                    elif lower(no_punctuation_marks(no_accents(txt_search))) in lower(str(list_item[wordnumber][0]) + ': '):
                         show = True
-                    elif lower(no_punctuation_marks(no_accents(txt_search))) in (str(list_item[wordnumber][1]) + ': '):
+                    elif lower(no_punctuation_marks(no_accents(txt_search))) in lower(str(list_item[wordnumber][1]) + ': '):
                         show = True
                     elif lower(no_punctuation_marks(no_accents(txt_search))) in (str(list_item[wordnumber][2]) + ': '):
                         show = True
@@ -728,7 +728,7 @@ def change_words(username, filename, list_item, settings):
         if choice_2.isdigit():
             # check the word exist
             if 0 < int(choice_2) < (len(list_item) + 1):
-                options = ['1', '2', 'd', 't']
+                options = ['1', '2', 'd', 'b']
                 # ask user
                 s_out('What do you want to do?')
                 s_out('Known word:   ' + list_item[int(choice_2) - 1][0] + ' --> 1')
