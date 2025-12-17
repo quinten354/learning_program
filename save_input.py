@@ -3,28 +3,6 @@ from getch import getch
 import os
 import inspect
 
-# get the special characters
-file = open(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/basic_files/combinations', mode = 'br')
-data = file.read()
-file.close()
-
-lijst = data.split(b'\n')
-while len(lijst) > 0:
-    if lijst[len(lijst) - 1] in [b'', b' ']:
-        del lijst[len(lijst) - 1]
-    else:
-        break
-
-combinaties = []
-for lijstitem in lijst:
-    combinaties.append(eval(lijstitem))
-
-standaard_combi_karakter = combinaties[0]
-combinaties = combinaties[1:]
-combinaties_upper = eval(str(combinaties).upper())
-for combi in combinaties_upper:
-    combinaties.append(combi)
-
 # set functions
 # show user input
 def print_input(prompt, input, position_cursor, insert = False, hide = False):
@@ -66,39 +44,7 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
             except UnicodeEncodeError:
                 print('\x1b[1;49;31mX\x1b[0m', end = '')
 
-def combi(combi_karakter):
-    karakters = []
-    while True:
-        ch = getch()
-        if ch in combi_karakter:
-            return combi_karakter * 2
-        elif ch == '\x1b':
-            return combi_karakter
-        elif ch == '\x7f':
-            if len(karakters) == 0:
-                return ''
-            else:
-                karakters = karakters[:-1]
-        elif ch == '\x08':
-            return ''
-        elif ch == '\n':
-            return '\n'
-        else:
-            karakters.append(ch)
-
-        if len(karakters) > 0:
-            for combinatie in combinaties:
-                toevoegen = True
-                for karakter in combinatie[0]:
-                    if karakter not in karakters:
-                        toevoegen = False
-                if toevoegen:
-                    return combinatie[1]
-
-        if len(karakters) > 2:
-            return ''
-
-def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], combi_karakter = standaard_combi_karakter, hide = False):
+def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], hide = False):
     lijst_stringen = prompt.split('\n')
     if len(lijst_stringen) > 1:
         for regel in lijst_stringen[:-1]:
@@ -128,9 +74,6 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
 
         if ch in enter_characters:
             return input, ch
-
-        if ch in combi_karakter:
-            ch = combi(ch)
 
         if ch == '\x1b' or ch == '\x00':
             c1 = getch()
