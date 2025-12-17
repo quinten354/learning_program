@@ -6,6 +6,7 @@ import logging
 import sys
 import datetime
 from time import sleep as wait, time
+from get_permissions import get_permissions
 
 # path_installer            var_installer              path_linux                           path_windows
 # lib                       path_lib                   /usr/local/lib/learning_program/     ~\AppData\local\learning_program\
@@ -35,11 +36,6 @@ slash = '\\' if os.name == 'nt' else '/'
 home = 'os.path.expanduser(\'~\') + '
 homedir = os.path.expanduser('~')
 installer_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-
-sys.path.clear()
-sys.path.append(installer_dir + '/lib')
-
-from functions import get_permissions
 
 logging.basicConfig(filename = installer_dir + '/install.log', level = logging.ERROR)
 
