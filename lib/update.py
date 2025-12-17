@@ -64,9 +64,19 @@ def update(path_info):
 
     sys.path.append(installer_dir)
 
-    import copy_files
+    try:
+        import copy_files
+    except:
+        print('Can\'t update. No file \'copy_files.py\' in installer.')
+        input('Press enter to close the program. ')
+        return
 
-    copy_files.main(path_lib, path_log, path_users, path_setup, path_info)
+    try:
+        copy_files.main(path_lib, path_log, path_users, path_setup, path_info)
+    except:
+        print('Can\'t update. No attribute \'main\' in copy_files.py in installer.')
+        input('Press enter to close the program. ')
+        return
 
     
     
@@ -87,7 +97,7 @@ def update(path_info):
         s_out('Error: Can\'t create info file.')
         s_out(error)
         input('Press enter to close the program. ')
-        exit(1)
+        return
     
     
     

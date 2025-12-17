@@ -108,25 +108,25 @@ def show_mistake(user_answer, good_answer, list_words = []):
             s_out('You have answered the answer of word \'\x1b[0;49;4m' + word[0] + '\x1b[0m\'.')
 
 # sort list with lists
-def sort(list_items, sorteernummer = 0):
+def sort(list_items, sortnumber = 0):
     relevant_items = []
     for listitem in list_items:
-        if listitem[sorteernummer] not in relevant_items:
-            relevant_items.append(listitem[sorteernummer])
+        if listitem[sortnumber] not in relevant_items:
+            relevant_items.append(listitem[sortnumber])
 
     relevant_items.sort()
     sorted_list = []
     for item in relevant_items:
         for listitem in list_items:
-            if listitem[sorteernummer] == item:
+            if listitem[sortnumber] == item:
                 sorted_list.append(listitem)
 
     return sorted_list.copy()
 
 # change size (change a long number of bytes to a rounded number of kilo, mega, giga or terra bytes of 5 characters)
-def ch_size(size):
+def ch_size(size, max_ = 1024):
     exponent = 0
-    while size >= 9999:
+    while size >= max_:
         exponent = exponent + 1
         size = size / 1024
 
@@ -142,7 +142,7 @@ def ch_size(size):
     else:
         size = size[:position]
 
-    list_sizes = [' ', 'K', 'M', 'G', 'T']
+    list_sizes = [' ', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
     size = size + list_sizes[exponent]
 
     while len(size) < 5:
@@ -576,4 +576,21 @@ def no_spaces(string):
 # change simular characters
 def ch_simular_characters(string):
     return string.replace('´', '\'').replace('`', '\'').replace('’', '\'').replace('‘', '\'').replace('¨', '"').replace('…', '...').replace('¸', ',')
+
+# get mod of dir or file
+def get_permissions(path):
+    x = 1
+    w = 2
+    r = 4
+    x_permis = os.access(path, x)
+    w_permis = os.access(path, w)
+    r_permis = os.access(path, r)
+    mod = 0
+    if x_permis:
+        mod = mod + x
+    if w_permis:
+        mod = mod + w
+    if r_permis:
+        mod = mod + r
+    return mod
 

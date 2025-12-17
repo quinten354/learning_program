@@ -62,6 +62,21 @@ def learn(username, filename, settings):
             if highest < list_item[wordnumber][3]:
                 highest = list_item[wordnumber][3]
 
+        # get owa words
+        owa = []
+        for wordnumber in range(len(list_item)):
+            try:
+                owa.append([wordnumber, list_item[wordnumber][5] / list_item[wordnumber][4]])
+            except ZeroDivisionError:
+                continue
+
+        owa = list(reversed(sort(owa.copy(), 1)))
+        owa = owa[settings[27]:].copy()
+        owa_numbers = []
+
+        for item in owa:
+            owa_numbers.append(item[0])
+
         # select words from learn method
         chosen_words = []
 
@@ -132,13 +147,30 @@ def learn(username, filename, settings):
                 if list_item[wordnumber][5] == lowest and list_item[wordnumber][2] > 0:
                     # als het woord nog niet in woorden zit
                     if wordnumber not in chosen_words:
-                        # woord toevoegen aan de lijst met woorden in deze leersessie
+                        # add
                         chosen_words.append(wordnumber)
                         # count words
                         count_select_words = count_select_words + 1
                     # mark as not often had
                     not_often_had.append(wordnumber)
                 if count_select_words == settings[4]:
+                    break
+
+        # select often wrong answered words
+        if settings[27] > 0:
+            # count words
+            count_select_words = 0
+            for wordnumber in range(len(list_item)):
+                # if the user had this word (don't mark unknown words as not often had) and the times had is equal to the lowest number, add
+                if wordnumber in owa_numbers and list_item[wordnumber][2] > 0:
+                    # als het woord nog niet in woorden zit
+                    if wordnumber not in chosen_words:
+                        # add
+                        chosen_words.append(wordnumber)
+                        # count words
+                        count_select_words = count_select_words + 1
+                    log_data(username, 'Selected owa: ' + str(wordnumber) + '    ' + str(list_item[wordnumber]))
+                if count_select_words == settings[27]:
                     break
 
         # select often had words to delete

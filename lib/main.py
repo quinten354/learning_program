@@ -38,7 +38,7 @@ def choose_name():
             cls()
             s_out('Choose your username or press \'n\' to create a new user.')
             s_out()
-            s_out('Name' + (' ' * (os.get_terminal_size().columns - 18)) + 'Time ago')
+            s_out('Name' + (' ' * (os.get_terminal_size().columns - 19)) + 'Time ago  Size')
             for name in range(len(list_users)):
                 # print username
                 if name == selection:
@@ -55,8 +55,10 @@ def choose_name():
                         last_time_learned = 0
    
                     # print the time ago
-                    s_out(' ' * ((os.get_terminal_size().columns - len(list_users[name])) - 14), end = '')
-                    s_out(ch_time(time() - last_time_learned)[0], end = ' ')
+                    s_out(' ' * ((os.get_terminal_size().columns - len(list_users[name])) - 15), end = '')
+                    t = ch_time(time() - last_time_learned)[0]
+                    s_out(t, end = '')
+                    s_out(' ' * (10 - len(t)), end = '')
 
                     # print total size
                     s_out(ch_size(get_user_size(list_users[name])))
@@ -343,7 +345,6 @@ def backup_menu(username):
 
         if choice == 'e':
             filename = user_choice_items(backups)
-            #location = s_inp('Type the full path of the location where you want to export this backup. If you press enter, it will be exported in the home directory.   > ')
             print('Select a directory to export the backup.')
             s_inp('Press enter to do it! ')
             location = browser(filename = filename, mode = 'create', type = 'f', message = 'Export to a file')
@@ -357,7 +358,6 @@ def backup_menu(username):
                 continue
 
         if choice == 'i':
-            #location = s_inp('Type the full path of the backup file you want to import.   > ')
             print('Select a file to import.')
             s_inp('Press enter to do it! ')
             location = browser(mode = 'open', type = 'f', message = 'Import backup file')

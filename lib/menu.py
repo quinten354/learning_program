@@ -1115,6 +1115,7 @@ def ch_settings(username):
             s_out('Maximum number of difficult words in a learn session: ' + str(settings[3]) + ' --> md')
             s_out('Maximum number of not often seen words in a learn session: ' + str(settings[4]) + ' --> nn')
             s_out('Maximum number of often seen words deleted out a learn session: ' + str(settings[5]) + ' --> no')
+            s_out('Maximum number of often wrong answered words in a learn session: ' + str(settings[27]) + ' --> wa')
             s_out('Maximum number of words in niveau 1 when words in niveau 0 will be chosen: ' + str(settings[14]) + ' --> nw')
 
             s_out()
@@ -1183,7 +1184,7 @@ def ch_settings(username):
             s_out('Reset to default --> r')
 
             # lijst met opties voor de gebruiker
-            options = ['lb', 'sa', 'ss', 'lm', 'g1', 'g2', 'md', 'nn', 'no', 'nw', 'al', 'ar', 'rl', 'rr', 'om', 'ws', 'am', 'as', 'cs', 'ps', 'acs', 'sps', 'aps', 'st', 'ii', 'si', 'ns', 's', 'q', 'l', 'r']
+            options = ['lb', 'sa', 'ss', 'lm', 'g1', 'g2', 'md', 'nn', 'no', 'nw', 'al', 'ar', 'rl', 'rr', 'om', 'ws', 'am', 'as', 'cs', 'ps', 'acs', 'sps', 'aps', 'st', 'ii', 'si', 'ns', 'wa', 's', 'q', 'l', 'r']
             # ask user
             choice = s_inp('   > ')
 
@@ -1328,24 +1329,46 @@ def ch_settings(username):
             # show legend bar
             if choice == 'lb':
                 cls()
-                settings[25] = s_inp('Show legend bar in the learn menu (y/n)   > ') == 'y'
+                while True:
+                    value = s_inp('Show legend bar in the learn menu (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[25] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # show the good answer by learn
             if choice == 'al':
                 cls()
-                settings[1] = s_inp('Show good answer by learn (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Show good answer by a mistake in learn (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[1] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # show the good answer by review
             if choice == 'ar':
                 cls()
-                settings[2] = s_inp('Show good answer by review (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Show good answer by a mistake in review (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[2] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # repeat hard words
             if choice == 'md':
                 number = -1
                 while number < 0 or number > 3:
                     cls()
-                    number = int(s_inp('Maximum number of difficult words in a learn session (number)   > '))
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 0 and 3.')
+                    value = s_inp('Maximum number of difficult words in a learn session (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
                 settings[3] = int(number)
 
             # repeat not often had words
@@ -1353,7 +1376,14 @@ def ch_settings(username):
                 number = -1
                 while number < 0 or number > 3:
                     cls()
-                    number = int(s_inp('Maximum number of not often had words in a learn session (number)   > '))
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 0 and 3.')
+                    value = s_inp('Maximum number of not often had words in a learn session (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
                 settings[4] = int(number)
 
             # delete easy words
@@ -1361,62 +1391,135 @@ def ch_settings(username):
                 number = -1
                 while number < 0 or number > 3:
                     cls()
-                    number = int(s_inp('Maximum number of often had words to delete out a learn session (number)   > '))
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 0 and 3.')
+                    value = s_inp('Maximum number of often had words to delete out a learn session (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
                 settings[5] = int(number)
 
             # repeat words with mistakes by learn
             if choice == 'rl':
                 cls()
-                settings[6] = s_inp('Repeat words with mistakes by learn (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Repeat words with mistakes by learn (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[6] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # repeat words with mistakes by review
             if choice == 'rr':
                 cls()
-                settings[7] = s_inp('Repeat words with mistakes by review (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Repeat words with mistakes by review (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[7] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # number of words to be showed in a multiple-choice question
             if choice == 'om':
-                number = 1
-                while number < 2 or number > 9:
+                number = -1
+                while number < 3 or number > 9:
                     cls()
-                    number = int(s_inp('Type the number of words in a multiple-choice question (number)   > '))
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 3 and 9.')
+                    value = s_inp('Type the number of words in a multiple-choice question (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
                 settings[8] = int(number)
 
             # minimum number of words by a sentence question
             if choice == 'ws':
-                number = 1
-                while number < 2 or number > 6:
+                number = -1
+                while number < 3 or number > 6:
                     cls()
-                    number = int(s_inp('Type the minimum number of words in a sentence question (number)   > '))
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 3 and 6.')
+                    value = s_inp('Type the minimum number of words in a sentence question (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
                 settings[9] = int(number)
 
             # case sensitivity
             if choice == 'cs':
                 cls()
-                settings[10] = s_inp('Case sensitivity (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Case sensitivity (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[10] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # punctuation sensitivity
             if choice == 'ps':
                 cls()
-                settings[11] = s_inp('Punctuation sensitivity (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Punctuation sensitivity (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[11] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # accent sensitivity
             if choice == 'acs':
                 cls()
-                settings[12] = s_inp('Accent sensitivity (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Accent sensitivity (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[12] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # space sensitivity
             if choice == 'sps':
                 cls()
-                settings[13] = s_inp('Space sensitivity (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Space sensitivity (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[13] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # number of words when you learn new words
             if choice == 'nw':
-                number = 0
+                number = -1
                 while number < 1 or number > 10:
                     cls()
-                    number = int(s_inp('Type the maximum number of words when you learn new words (number)   > '))
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 1 and 10.')
+                    value = s_inp('Type the maximum number of words in niveau 1 when a new word will be added. (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
                 settings[14] = int(number)
+
+            # number of often wrong answered words in a learn session
+            if choice == 'wa':
+                number = -1
+                while number < 0 or number > 3:
+                    cls()
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 0 and 4.')
+                    value = s_inp('Type the maximum number of often wrong answered words in a learn session. (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
+                settings[27] = int(number)
 
             # way of sort
             if choice == 'st':
@@ -1430,6 +1533,12 @@ def ch_settings(username):
                     if number.isdigit():
                         if -1 < int(number) < 2:
                             break
+                        else:
+                            s_out('\x1b[1;49;31mInvalid number!\x1b[0m')
+                            wait(1.5)
+                    else:
+                        s_out('\x1b[1;49;31mNot a number!\x1b[0m')
+                        wait(1.5)
                 settings[15] = int(number)
 
             # way of sort between words
@@ -1449,51 +1558,96 @@ def ch_settings(username):
                     if number.isdigit() or number == '-1':
                         if -2 < int(number) < 6:
                             break
+                        else:
+                            s_out('\x1b[1;49;31mInvalid number!\x1b[0m')
+                            wait(1.5)
+                    else:
+                        s_out('\x1b[1;49;31mNot a number!\x1b[0m')
+                        wait(1.5)
                 settings[23] = int(number)
 
             # go from niveau 1 to niveau 2
             if choice == 'g1':
-                number = 0
-                while not 0 < number < 8:
+                number = -1
+                while number < 1 or number > 7:
                     cls()
-                    number = int(s_inp('Number of times in a row correct to go from niveau 1 to niveau 2 (number)   > '))
-                settings[16] = number
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 1 and 7.')
+                    value = s_inp('Number of times in a row correct to go from niveau 1 to niveau 2 (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
+                settings[16] = int(number)
 
             # het aantal keer dat je een woord achter elkaar goed moet hebben om het van niveau 2 naar niveau 3 te laten gaan
             if choice == 'g2':
-                number = 0
-                while not 1 < number < 10:
+                number = -1
+                while number < 2 or number > 9:
                     cls()
-                    number = int(s_inp('Number of times in a row correct to go from niveau 2 to niveau 3 (number)   > '))
-                settings[17] = number
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 2 and 9.')
+                    value = s_inp('Number of times in a row correct to go from niveau 2 to niveau 3 (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
+                settings[17] = int(number)
 
             # automatically synchronize
             if choice == 'sa':
                 cls()
-                settings[18] = s_inp('Synchronize automatically the items by startup (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Synchronize automatically the items by startup (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[18] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             if choice == 'am':
                 cls()
                 s_out('Choose the way to answer multiple-choice questions:')
                 s_out('Type numbers or select answer --> 0')
                 s_out('Type numbers or word --> 1')
-                settings[19] = s_inp('   > ') == '0'
+                while True:
+                    value = s_inp('   > ')
+                    if value in ['0', '1']:
+                        settings[19] = value == '0'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             if choice == 'as':
                 cls()
                 s_out('Choose the way to answer sentence questions:')
                 s_out('Type numbers or select word --> 0')
                 s_out('Type numbers, sentence or word --> 1')
-                settings[20] = s_inp('   > ') == '0'
+                while True:
+                    value = s_inp('   > ')
+                    if value in ['0', '1']:
+                        settings[20] = value == '0'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             if choice == 'ss':
                 cls()
-                settings[21] = s_inp('Low search sensitivity (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Low search sensitivity (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[21] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # apostrophe sensitivity
             if choice == 'aps':
                 cls()
-                settings[22] = s_inp('Apostrophe sensitivity (yes/no)   > ') == 'yes'
+                while True:
+                    value = s_inp('Apostrophe sensitivity (y/n)   > ')
+                    if value in ['y', 'n']:
+                        settings[22] = value == 'y'
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
 
             # information from items on menu
             if choice == 'ii':
@@ -1540,11 +1694,18 @@ def ch_settings(username):
 
             # start with unknown words
             if choice == 'ns':
-                number = 0
-                while not 0 < number < 10:
+                number = -1
+                while number < 1 or number > 9:
                     cls()
-                    number = int(s_inp('Number of new words when you start with learn (number) (1-9)   > '))
-                settings[25] = number
+                    if number != -1:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m Choose a value between 1 and 9.')
+                    value = s_inp('Number of new words when you start with learn (number)   > ')
+                    if value.isdigit():
+                        number = int(value)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t!\x1b[0m')
+                        number = -1
+                settings[25] = int(number)
 
             # save
             if choice == 's':
