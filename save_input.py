@@ -1,10 +1,29 @@
 # import modules
 from getch import getch
 import os
-import sys
+import inspect
 
-s_out = sys.stdout.write
-flush = sys.stdout.flush
+# get the special characters
+file = open(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/basic_files/combinations', mode = 'br')
+data = file.read()
+file.close()
+
+lijst = data.split(b'\n')
+while len(lijst) > 0:
+    if lijst[len(lijst) - 1] in [b'', b' ']:
+        del lijst[len(lijst) - 1]
+    else:
+        break
+
+combinaties = []
+for lijstitem in lijst:
+    combinaties.append(eval(lijstitem))
+
+standaard_combi_karakter = combinaties[0]
+combinaties = combinaties[1:]
+combinaties_upper = eval(str(combinaties).upper())
+for combi in combinaties_upper:
+    combinaties.append(combi)
 
 # set functions
 # show user input
@@ -13,14 +32,11 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
         columns = os.get_terminal_size().columns
     except:
         columns = 120
-    # when hidden, show stars
     if hide:
         input = '*' * len(input)
-    # change tabs for spaces
     input = input.replace('\x89', '').replace('\x1b', '\\')
     begin = False
     end = False
-
     while len(prompt + input) > (columns - 9):
         if position_cursor > (len(input) / 2):
             input = input[1:]
@@ -33,30 +49,60 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
     txt = '\r' + prompt + ('«' if begin else '') + input + ('»' if end else '')
     txt = txt + (' ' * ((columns - 3) - len(txt)) + ('I' if insert else ' ') + ('V' if hide else ' ') + ' ')
     try:
-        s_out(txt)
+        print(txt, end = '')
     except UnicodeEncodeError:
         for karakter in txt:
             try:
-                s_out(karakter)
+                print(karakter, end = '')
             except UnicodeEncodeError:
-                s_out('\x1b[1;49;31mX\x1b[0m')
-
+                print('\x1b[1;49;31mX\x1b[0m', end = '')
     txt = '\r' + ('\x1b[C' * len(prompt + ('«' if begin else '') + input[:position_cursor]))
     try:
-        s_out(txt)
+        print(txt, end = '')
     except UnicodeEncodeError:
         for karakter in txt:
             try:
-                s_out(karakter)
+                print(karakter, end = '')
             except UnicodeEncodeError:
-                s_out('\x1b[1;49;31mX\x1b[0m')
-    flush()
+                print('\x1b[1;49;31mX\x1b[0m', end = '')
 
-def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], hide = False):
+def combi(combi_karakter):
+    karakters = []
+    while True:
+        ch = getch()
+        if ch in combi_karakter:
+            return combi_karakter * 2
+        elif ch == '\x1b':
+            return combi_karakter
+        elif ch == '\x7f':
+            if len(karakters) == 0:
+                return ''
+            else:
+                karakters = karakters[:-1]
+        elif ch == '\x08':
+            return ''
+        elif ch == '\n':
+            return '\n'
+        else:
+            karakters.append(ch)
+
+        if len(karakters) > 0:
+            for combinatie in combinaties:
+                toevoegen = True
+                for karakter in combinatie[0]:
+                    if karakter not in karakters:
+                        toevoegen = False
+                if toevoegen:
+                    return combinatie[1]
+
+        if len(karakters) > 2:
+            return ''
+
+def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], combi_karakter = standaard_combi_karakter, hide = False):
     lijst_stringen = prompt.split('\n')
     if len(lijst_stringen) > 1:
         for regel in lijst_stringen[:-1]:
-            s_out(regel + '\n')
+            print(regel + '\n', end = '')
         prompt = lijst_stringen[-1]
 
     try:
@@ -64,7 +110,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
     except:
         columns = 120
     while len(prompt) > (columns - 25):
-        s_out(prompt[:columns] + '\n')
+        print(prompt[:columns] + '\n', end = '')
         prompt = prompt[columns:]
 
     position_cursor = len(input)
@@ -77,10 +123,14 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
         ch = getch()
 
         if ch in invalid_characters:
+            print_input(prompt, input, position_cursor, insert, hide)
             continue
 
         if ch in enter_characters:
             return input, ch
+
+        if ch in combi_karakter:
+            ch = combi(ch)
 
         if ch == '\x1b' or ch == '\x00':
             c1 = getch()
@@ -121,7 +171,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                             return input, ch + c1 + c2 + c3
                         if c3 == ';':
                             c4 = getch()
-                            # ;2 --> shift, ;5 --> ctrl of alt, ;7 --> ctrl and alt, ;6 --> shift and ctrl, ;4 --> shift and alt, ;8 --> shift and ctrl and alt
+                            # ;2 --> shift, ;5 --> ctrl of alt, ;7 --> ctrl en alt, ;6 --> shift en ctrl, ;4 --> shift en alt, ;8 --> shift en ctrl en alt
                             if c4 == '5':
                                 c5 = getch()
                                 if c5 == 'D':
@@ -220,14 +270,12 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
             raise KeyboardInterrupt
         elif ch == '\x12':
             if len(prompt) > 0:
-                s_out('\n')
-                flush()
+                print('\n', end = '')
                 prompt = prompt[columns:]
 
         elif ch == '\n':
             if os.name == 'nt':
-                s_out('\n')
-                flush()
+                print('\n', end = '')
             return input
 
         else:

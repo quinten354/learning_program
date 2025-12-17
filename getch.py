@@ -43,3 +43,4 @@ def getch(location = sys.stdin):
             return location.read(1)
         finally:
             termios.tcsetattr(fd, termios.TCSAFLUSH, orig)
+

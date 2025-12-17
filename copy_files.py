@@ -21,7 +21,7 @@ from time import sleep as wait, time
 # lib/__init__.py           <path_to_log>              path_log
 # lib/__init__.py           <path_to_log>              path_info
 # lib/errors.py             <path_to_log>              path_log
-# lib/manage_files.py           <path_to_users>            path_users
+# lib/manage_files.py       <path_to_users>            path_users
 # lib/main.py               <path_to_info>             path_info
 
 version = '3.1'
@@ -35,6 +35,11 @@ slash = '\\' if os.name == 'nt' else '/'
 home = 'os.path.expanduser(\'~\') + '
 homedir = os.path.expanduser('~')
 installer_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+sys.path.clear()
+sys.path.append(installer_dir + '/lib')
+
+from functions import get_permissions
 
 logging.basicConfig(filename = installer_dir + '/install.log', level = logging.ERROR)
 
@@ -87,10 +92,11 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
 
     # delete all files in path_lib
 
-    try:
-        os.chmod(path_lib, 0o777)
-    except:
-        log()
+    if get_permissions(path_lib) != 7:
+        try:
+            os.chmod(path_lib, 0o777)
+        except:
+            log()
 
     listdir = os.listdir(path_lib)
 
@@ -223,10 +229,11 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         input('Press enter to close the program. ')
         exit(1)
 
-    try:
-        os.chmod(path_setup, 0o777)
-    except:
-        log()
+    if get_permissions(path_setup) != 7:
+        try:
+            os.chmod(path_setup, 0o777)
+        except:
+            log()
 
     try:
         f1 = open(installer_dir + slash + 'learning_program', mode = 'br')
