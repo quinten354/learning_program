@@ -9,7 +9,7 @@ from extern.save_output import save_output as s_out, cls
 
 from manage_files import create_file, delete_file, ch_path, get_list, overwrite, delete_all
 from questions import type_ex, multiple_choise, sentence
-from learn import learn
+from learn import learn, continue_learn
 from functions import sort
 from errors import ClosedTerminalError, ProcessKilledError
 
@@ -261,14 +261,14 @@ def review_words(list_words, settings, username, type, difficult_words = [], tim
 # save a reviewsession
 def save_reviewsession(list_words, difficult_words, type, times_wrong, times_good, number_words_had, total_number_of_words, times_in_a_row_good, all_words, username, filename = ''):
     try:
-        while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_reviewsessions/')):
-            if filename in os.listdir(ch_path('~/' + username + '/saved_reviewsessions/')):
+        while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
+            if filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
                 filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', invalid_characters = ['/', '\\'])
             else:
                 filename = s_inp('Choose the name to save this session.   > ', invalid_characters = ['/', '\\'])
 
         # create file
-        create_file(username, 'saved_reviewsessions/' + filename)
+        create_file(username, 'saved_sessions/' + filename)
 
     except KeyboardInterrupt:
         if filename == '':
@@ -280,7 +280,7 @@ def save_reviewsession(list_words, difficult_words, type, times_wrong, times_goo
             s_out('Overwrite.')
 
     # overwrite
-    overwrite(username, [list_words, difficult_words, type, times_wrong, times_good, number_words_had - 1, total_number_of_words, times_in_a_row_good, all_words], 'saved_reviewsessions/' + filename)
+    overwrite(username, [['review'], list_words, difficult_words, type, times_wrong, times_good, number_words_had - 1, total_number_of_words, times_in_a_row_good, all_words], 'saved_sessions/' + filename)
 
 # save difficult words
 def save_as_new_list(output, username, settings, filename = ''):
@@ -368,27 +368,27 @@ def save_and_review(output, username, settings, filename = ''):
     review(difficult_words, username, settings)
 
 # view saved reviewsessions
-def show_saved_reviewsessions(username):
+def show_saved_sessions(username, settings):
     while True:
         # get saved reviewsessions
-        saved_reviewsessions = os.listdir(ch_path('~/' + username + '/saved_reviewsessions/'))
+        saved_sessions = os.listdir(ch_path('~/' + username + '/saved_sessions/'))
         # clear screen
         cls()
         # show saved reviewsessions
-        for list_words in range(len(saved_reviewsessions)):
-            s_out(str(list_words + 1) + ': ' + saved_reviewsessions[list_words])
+        for list_words in range(len(saved_sessions)):
+            s_out(str(list_words + 1) + ': ' + saved_sessions[list_words])
         # add newline
-        if len(saved_reviewsessions) > 0:
+        if len(saved_sessions) > 0:
             s_out()
 
         # show options
-        s_out('Continue review --> r')
+        s_out('Continue --> c')
         s_out('Delete --> d')
         s_out('Delete all --> a')
         s_out('Back --> b/q')
         choice = s_inp('   > ')
         
-        options = ['r', 'd', 'a', 'b', 'q']
+        options = ['c', 'd', 'a', 'b', 'q']
         if choice not in options:
             cls()
             s_out('\x1b[1;49;31mThat isn\'t a option!!!\x1b[0m')
@@ -396,54 +396,64 @@ def show_saved_reviewsessions(username):
             continue
 
         # review
-        if choice == 'r':
-            if len(saved_reviewsessions) != 0:
+        if choice == 'c':
+            if len(saved_sessions) != 0:
                 # ask wich item
-                number = s_inp('Type the number to review.   > ')
+                number = s_inp('Type the number to continue.   > ')
                 # check is a number
                 if number.isdigit():
                     # check exist
-                    if 0 < int(number) < (len(saved_reviewsessions) + 1):
+                    if 0 < int(number) < (len(saved_sessions) + 1):
                         # get content
-                        list_words = get_list(username, 'saved_reviewsessions/' + saved_reviewsessions[int(number) - 1])
+                        list_words = get_list(username, 'saved_sessions/' + saved_sessions[int(number) - 1])
 
                         # set variables
-                        difficult_words = list_words[1]
-                        type = list_words[2]
-                        times_wrong = list_words[3]
-                        times_good = list_words[4]
-                        number_words_had = list_words[5]
-                        total_number_of_words = list_words[6]
-                        times_in_a_row_good = list_words[7]
-                        all_words = list_words[8]
-                        list_words = list_words[0]
-                    
-                        # review
-                        output = review_words(list_words, settings, username, type, difficult_words, times_wrong, times_good, number_words_had, total_number_of_words, times_in_a_row_good, all_words)
-                        if len(output[0]) > 0 and output[1] != 'home':
-                            # save as new list
-                            if output[1] == 'new list':
-                                save_as_new_list(output, username, settings)
-                            
-                            # save and learn
-                            if output[1] == 'learn':
-                                save_and_learn(output, username, settings)
-                    
+                        session_type = list_words[0][0]
+                        if session_type == 'review':
+                            difficult_words = list_words[2]
+                            type = list_words[3]
+                            times_wrong = list_words[4]
+                            times_good = list_words[5]
+                            number_words_had = list_words[6]
+                            total_number_of_words = list_words[7]
+                            times_in_a_row_good = list_words[8]
+                            all_words = list_words[9]
+                            list_words = list_words[1]
+                        
                             # review
-                            if output[1] == 'review':
-                                rereview(output, username, settings)
-                    
-                            # save and review
-                            if output[1] == 'new list and review':
-                                save_and_review(output, username, settings)
-        
-                        elif len(output[0]) == 0 and output[1] != 'home':
-                            s_out('You have none mistakes!!!')
-                            wait(1.5)
-                    
-                        elif output[1] != 'home':
-                            s_out('Something went wrong.')
-                            wait(1.5)
+                            output = review_words(list_words, settings, username, type, difficult_words, times_wrong, times_good, number_words_had, total_number_of_words, times_in_a_row_good, all_words)
+                            if len(output[0]) > 0 and output[1] != 'home':
+                                # save as new list
+                                if output[1] == 'new list':
+                                    save_as_new_list(output, username, settings)
+                                
+                                # save and learn
+                                if output[1] == 'learn':
+                                    save_and_learn(output, username, settings)
+                        
+                                # review
+                                if output[1] == 'review':
+                                    rereview(output, username, settings)
+                        
+                                # save and review
+                                if output[1] == 'new list and review':
+                                    save_and_review(output, username, settings)
+            
+                            elif len(output[0]) == 0 and output[1] != 'home':
+                                s_out('You have none mistakes!!!')
+                                wait(1.5)
+                        
+                            elif output[1] != 'home':
+                                s_out('Something went wrong.')
+                                wait(1.5)
+
+                        else:
+                            filename = list_words[1]
+                            chosen_words = list_words[2]
+                            not_often_had = list_words[3]
+                            difficult = list_words[4]
+
+                            continue_learn(username, filename, chosen_words, not_often_had, difficult)
                 
                     else:
                         s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
@@ -452,20 +462,20 @@ def show_saved_reviewsessions(username):
                     s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
                     wait(1.5)
             else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to review.\x1b[0m')
+                s_out('\x1b[1;49;31mThat can\'t. There is nothing to continue.\x1b[0m')
                 wait(1.5)
 
         # delete
         if choice == 'd':
-            if len(saved_reviewsessions) != 0:
+            if len(saved_sessions) != 0:
                 # ask number
                 number = s_inp('Type the number to delete.   > ')
                 # check is a number
                 if number.isdigit():
                     # check exist
-                    if 0 < int(number) < (len(saved_reviewsessions) + 1):
+                    if 0 < int(number) < (len(saved_sessions) + 1):
                         # delete
-                        delete_file(username, 'saved_reviewsessions/' + saved_reviewsessions[int(number) - 1])
+                        delete_file(username, 'saved_sessions/' + saved_sessions[int(number) - 1])
 
                         cls()
                         s_out('Successful deleted.')
@@ -478,28 +488,28 @@ def show_saved_reviewsessions(username):
                     s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
                     wait(1.5)
             else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to review.\x1b[0m')
+                s_out('\x1b[1;49;31mThat can\'t. There is nothing to delete.\x1b[0m')
                 wait(1.5)
 
         # delete all
         if choice == 'a':
             # ask permision
             if s_inp('Are you sure to delete all? It can\'t be undone. (yes/no)   > ') == 'yes':
-                delete_all(username, 'saved_reviewsessions/')
+                delete_all(username, 'saved_sessions/')
                 
         # back
         if choice == 'b' or choice == 'q':
             return ''
 
 # proceed the review session
-def proceed_review(username, settings):
-    saved_reviewsessions = os.listdir(ch_path('~/' + username + '/saved_reviewsessions/'))
+def proceed_session(username, settings):
+    saved_sessions = os.listdir(ch_path('~/' + username + '/saved_sessions/'))
     while True:
         cls()
-        for saved_reviewsession in range(len(saved_reviewsessions)):
-            s_out(str(saved_reviewsession + 1) + ': ' + saved_reviewsessions[saved_reviewsession])
+        for saved_session in range(len(saved_sessions)):
+            s_out(str(saved_session + 1) + ': ' + saved_sessions[saved_session])
 
-        if len(saved_reviewsessions) > 0:
+        if len(saved_sessions) > 0:
             s_out()
     
         try:
@@ -513,52 +523,64 @@ def proceed_review(username, settings):
         if not number.isdigit():
             continue
 
-        if not 0 < int(number) < (len(saved_reviewsessions) + 1):
+        if not 0 < int(number) < (len(saved_sessions) + 1):
             continue
 
-        filename = saved_reviewsessions[int(number) - 1]
+        filename = saved_sessions[int(number) - 1]
         break
 
     # get content
-    list_words = get_list(username, 'saved_reviewsessions/' + filename)
+    list_words = get_list(username, 'saved_sessions/' + filename)
 
     # set variables
-    difficult_words = list_words[1]
-    type = list_words[2]
-    times_wrong = list_words[3]
-    times_good = list_words[4]
-    number_words_had = list_words[5]
-    total_number_of_words = list_words[6]
-    times_in_a_row_good = list_words[7]
-    all_words = list_words[8]
-    list_words = list_words[0]
-
-    # review
-    output = review_words(list_words, settings, username, type, difficult_words, times_wrong, times_good, number_words_had, total_number_of_words, times_in_a_row_good, all_words)
-    if len(output[0]) > 0 and output[1] != 'home':
-        # save as new list
-        if output[1] == 'new list':
-            save_as_new_list(output, username, settings)
-        
-        # save and learn
-        if output[1] == 'learn':
-            save_and_learn(output, username, settings)
+    session_type = list_words[0][0]
+    if session_type == 'review':
+        difficult_words = list_words[2]
+        type = list_words[3]
+        times_wrong = list_words[4]
+        times_good = list_words[5]
+        number_words_had = list_words[6]
+        total_number_of_words = list_words[7]
+        times_in_a_row_good = list_words[8]
+        all_words = list_words[9]
+        list_words = list_words[1]
 
         # review
-        if output[1] == 'review':
-            rereview(output, username, settings)
+        output = review_words(list_words, settings, username, type, difficult_words, times_wrong, times_good, number_words_had, total_number_of_words, times_in_a_row_good, all_words)
+        if len(output[0]) > 0 and output[1] != 'home':
+            # save as new list
+            if output[1] == 'new list':
+                save_as_new_list(output, username, settings)
+            
+            # save and learn
+            if output[1] == 'learn':
+                save_and_learn(output, username, settings)
 
-        # save and review
-        if output[1] == 'new list and review':
-            save_and_review(output, username, settings)
+            # review
+            if output[1] == 'review':
+                rereview(output, username, settings)
 
-    elif len(output[0]) == 0 and output[1] != 'home':
-        s_out('You have none mistakes!!!')
-        wait(1.5)
+            # save and review
+            if output[1] == 'new list and review':
+                save_and_review(output, username, settings)
 
-    elif output[1] != 'home':
-        s_out('Something went wrong.')
-        wait(1.5)
-        
-    return ''
+        elif len(output[0]) == 0 and output[1] != 'home':
+            s_out('You have none mistakes!!!')
+            wait(1.5)
+
+        elif output[1] != 'home':
+            s_out('Something went wrong.')
+            wait(1.5)
+            
+    elif session_type == 'learn':
+        filename = list_words[1]
+        chosen_words = list_words[2]
+        not_often_had = list_words[3]
+        difficult = list_words[4]
+
+        continue_learn(username, filename, chosen_words, not_often_had, difficult)
+
+    else:
+        print('Error. Invalid type of data.')
+        s_inp('Press enter to go back. ')
 

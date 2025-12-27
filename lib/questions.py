@@ -5,6 +5,7 @@ from time import sleep as wait
 
 from extern.save_input import save_input as s_inp
 from extern.save_output import save_output as s_out, cls
+from extern.getch import start as getch_start, stop as getch_stop
 
 from functions import show_mistake, check_answer
 
@@ -45,6 +46,8 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
     check = False
     inp = ''
 
+    fd = getch_start()
+
     while True:
         cls()
         # show info
@@ -60,9 +63,9 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
 
         # ask input
         if settings[19]:
-            inp = s_inp('Type a number or select with w/s or k/j.   > ', input = inp, enter_characters = ['w', 's', 'k', 'l', 'd', 'l', 'c', '\x1b[A', '\x1b[B', '\x1b[E'])
+            inp = s_inp('Type a number or select with w/s or k/j.   > ', input = inp, enter_characters = ['w', 's', 'k', 'l', 'd', 'l', 'c', '\x1b[A', '\x1b[B', '\x1b[E'], getch_start_stop = False)
         else:
-            inp = s_inp('Type a number, the whole word or select with arrows.   > ', input = inp, enter_characters = ['\x1b[A', '\x1b[B', '\x1b[E'])
+            inp = s_inp('Type a number, the whole word or select with arrows.   > ', input = inp, enter_characters = ['\x1b[A', '\x1b[B', '\x1b[E'], getch_start_stop = False)
 
         if type(inp) == tuple:
             key = inp[1]
@@ -91,7 +94,7 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
         # numbers
         elif inp.isdigit():
             if 0 < int(inp) <= len(words) and inp in answers:
-                choice = s_inp('You have typed \'' + inp + '\', but it\'s a number and a word. Choice \x1b[4mN\x1b[0mumber or \x1b[4mW\x1b[0mord \'' + inp + '\'?   > ', enter_characters = ['n', 'w'], invalid_characters = ['\n'])[1]
+                choice = s_inp('You have typed \'' + inp + '\', but it\'s a number and a word. Choice \x1b[4mN\x1b[0mumber or \x1b[4mW\x1b[0mord \'' + inp + '\'?   > ', enter_characters = ['n', 'w'], invalid_characters = ['\n'], getch_start_stop = False)[1]
                 if choice == 'n':
                     check = True
                     answer = words[int(inp) - 1][1]
@@ -127,6 +130,7 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
 
         # check
         if check:
+            getch_stop(fd)
             if check_answer(good_answer[1], answer, settings):
                 s_out('\x1b[1;49;32mThat\'s correct!!!\x1b[0m')
                 wait(1.5)
@@ -145,6 +149,8 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
                 else:
                     s_inp('Press enter to continue. ')
                     return False, answer
+
+    getch_stop(fd)
 
 # give a type question
 def type_ex(word, settings, mode, list_words = []):
@@ -183,6 +189,8 @@ def sentence(word, settings, mode, info, list_words = []):
     inp = ''
     check = False
 
+    fd = getch_start()
+
     while True:
         cls()
         s_out(info)
@@ -196,17 +204,17 @@ def sentence(word, settings, mode, info, list_words = []):
         s_out()
         # show words to choise
         for i in range(len(words_user)):
-            aantal_keer_geselecteerd = sentence_user.count(words_user[i])
-            hoeveelste_keer = words_user[:i].count(words_user[i])
-            geel = hoeveelste_keer >= aantal_keer_geselecteerd
+            times_selected = sentence_user.count(words_user[i])
+            number_times = words_user[:i].count(words_user[i])
+            yellow = number_times >= times_selected
             if selected == i:
-                if geel:
+                if yellow:
                     s_out('\x1b[7;49;33m' + str(i + 1) + '. ' + words_user[i] + '\x1b[0m', end = '')
                 else:
                     s_out('\x1b[7m' + str(i + 1) + '. ' + words_user[i] + '\x1b[0m', end = '')
 
             else:
-                if geel:
+                if yellow:
                     s_out('\x1b[1;49;33m' + str(i + 1) + '. ' + words_user[i] + '\x1b[0m', end = '')
                 else:
                     s_out(str(i + 1) + '. ' + words_user[i], end = '')
@@ -221,9 +229,9 @@ def sentence(word, settings, mode, info, list_words = []):
 
         # ask input
         if settings[20]:
-            inp = s_inp('Type a number, select with a/d or h/l and t to add or c to check.   > ', input = inp, enter_characters = ['a', 'd', 'h', 'l', 't', 'c', '\x1b[C', '\x1b[D', '\x1b[2~', '\t', '\x1d', '\x1b[E'])
+            inp = s_inp('Type a number, select with a/d or h/l and t to add or c to check.   > ', input = inp, enter_characters = ['a', 'd', 'h', 'l', 't', 'c', '\x1b[C', '\x1b[D', '\x1b[2~', '\t', '\x1d', '\x1b[E'], getch_start_stop = False)
         else:
-            inp = s_inp('Type a number, word or the whole sentence, select with arrows, tab to add or enter to check.   > ', input = inp, enter_characters = ['\x1b[C', '\x1b[D', '\x1b[2~', '\t', '\x1d', '\x1b[E'])
+            inp = s_inp('Type a number, word or the whole sentence, select with arrows, tab to add or enter to check.   > ', input = inp, enter_characters = ['\x1b[C', '\x1b[D', '\x1b[2~', '\t', '\x1d', '\x1b[E'], getch_start_stop = False)
 
         inp_without_spaces = inp
         try:
@@ -268,7 +276,7 @@ def sentence(word, settings, mode, info, list_words = []):
 
         elif inp.isdigit():
             if 0 < int(inp) <= len(words_user) and inp in words_user:
-                choice = s_inp('You have typed \'' + inp + '\', but it\'s a number and a word. Choice \x1b[4mN\x1b[0mumber or \x1b[4mW\x1b[0mord \'' + inp + '\'?   > ', enter_characters = ['n', 'w'], invalid_characters = ['\n'])[1]
+                choice = s_inp('You have typed \'' + inp + '\', but it\'s a number and a word. Choice \x1b[4mN\x1b[0mumber or \x1b[4mW\x1b[0mord \'' + inp + '\'?   > ', enter_characters = ['n', 'w'], invalid_characters = ['\n'], getch_start_stop = False)[1]
                 if choice == 'n':
                     if words_user[int(inp) - 1] not in sentence_user:
                         sentence_user.append(words_user[int(inp) - 1])
@@ -357,6 +365,8 @@ def sentence(word, settings, mode, info, list_words = []):
                 check = False
                 continue
 
+            getch_stop(fd)
+
             while answer[0] == ' ':
                 answer = answer[1:]
 
@@ -382,4 +392,6 @@ def sentence(word, settings, mode, info, list_words = []):
                 else:
                     s_inp('Press enter to continue. ')
                     return False, answer
+
+    getch_stop(fd)
 

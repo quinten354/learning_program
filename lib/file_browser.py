@@ -1,4 +1,4 @@
-from extern.getch import getch
+from extern.getch import getch_ as getch, start as getch_start, stop as getch_stop
 import os
 import datetime
 from extern.save_input import save_input as sinp
@@ -56,6 +56,8 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
 
     cursor = 0
     name = ''
+
+    fd = getch_start()
 
     while True:
         # clear screen
@@ -170,6 +172,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                                 try:
                                     out = browser(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
                                     if out != '':
+                                        getch_stop(fd)
                                         return out
     
                                 except Exception as error:
@@ -179,8 +182,10 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                             elif filename != '' and cursor == 0:
                                 try:
                                     if type == 'f' or type == '':
+                                        getch_stop(fd)
                                         return sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
                                     else:
+                                        getch_stop(fd)
                                         return sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
                                 except KeyboardInterrupt:
                                     continue
@@ -194,6 +199,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                             try:
                                 out = browser(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
                                 if out != '':
+                                    getch_stop(fd)
                                     return out
 
                             except Exception as error:
@@ -201,6 +207,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                                 input('Press enter to continue. ')
 
                         else:
+                            getch_stop(fd)
                             return ''
 
             else:
@@ -217,6 +224,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                             try:
                                 out = browser(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
                                 if out != '':
+                                    getch_stop(fd)
                                     return out
     
                             except Exception as error:
@@ -226,8 +234,10 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                         elif filename != '' and cursor == 0:
                             try:
                                 if type == 'f' or type == '':
+                                    getch_stop(fd)
                                     return path + sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
                                 else:
+                                    getch_stop(fd)
                                     return path + sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
                             except KeyboardInterrupt:
                                 continue
@@ -242,6 +252,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                         try:
                             out = browser(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
                             if out != '':
+                                getch_stop(fd)
                                 return out
 
                         except Exception as error:
@@ -249,6 +260,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                             input('Press enter to continue. ')
 
                     else:
+                        getch_stop(fd)
                         return ''
 
         if ch == 'k' or ch == 'K' or ch == 'w' or ch == 'W':
@@ -261,6 +273,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                     try:
                         out = browser(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
                         if out != '':
+                            getch_stop(fd)
                             return out
     
                     except Exception as error:
@@ -270,8 +283,10 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                 elif filename != '' and cursor == 0:
                     try:
                         if type == 'f' or type == '':
+                            getch_stop(fd)
                             return path + sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
                         else:
+                            getch_stop(fd)
                             return path + sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
                     except KeyboardInterrupt:
                         continue
@@ -285,6 +300,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                 try:
                     out = browser(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
                     if out != '':
+                        getch_stop(fd)
                         return out
 
                 except Exception as error:
@@ -292,13 +308,17 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                     input('Press enter to continue. ')
 
             else:
+                getch_stop(fd)
                 return ''
+
         if ch == '\n':
             if filename != '' and tcursor == -1:
                 try:
                     if type == 'f' or type == '':
+                        getch_stop(fd)
                         return path + sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
                     else:
+                        getch_stop(fd)
                         return path + sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
                 except KeyboardInterrupt:
                     continue
@@ -307,16 +327,19 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                 try:
                     if mode == 'open':
                         if type == '' or (type == 'f' and isfile) or (type == 'd' and not isfile):
-                            sinp('Press enter to open ' + ('file' if isfile else 'directory') + ' \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ')
+                            sinp('Press enter to open ' + ('file' if isfile else 'directory') + ' \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
+                            getch_stop(fd)
                             return path + listdir[tcursor]
                         else:
                             print('This is a ' + ('file' if isfile else 'directory') + '.')
                     else:
                         if isfile and (type == '' or type == 'f'):
-                            sinp('Press enter if you want to overwrite file \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ')
+                            sinp('Press enter if you want to overwrite file \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
+                            getch_stop(fd)
                             return path + listdir[tcursor]
                         elif (not isfile) and (type == '' or type == 'd'):
-                            sinp('Press enter to open directory \'' + path + listdir[tcursor] + '\'. Any files in this directory can be overwritten. Press ctrl + c to cancel. ')
+                            sinp('Press enter to open directory \'' + path + listdir[tcursor] + '\'. Any files in this directory can be overwritten. Press ctrl + c to cancel. ', getch_start_stop = False)
+                            getch_stop(fd)
                             return path + listdir[tcursor]
                 except KeyboardInterrupt:
                     continue
@@ -332,14 +355,18 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
         if ch == '.':
             show_point_files = not show_point_files
         if ch == 'f' and mode == 'create':
+            getch_stop(fd)
             try:
                 return path + sinp('Create a new file: ', input = filename, invalid_characters = ['/', '\\'])
             except KeyboardInterrupt:
+                fd = getch_start()
                 continue
         if ch == 'n':
+            getch_stop(fd)
             try:
                 inp = sinp('Create a new directory: ', invalid_characters = ['/', '\\'])
             except KeyboardInterrupt:
+                fd = getch_start()
                 continue
             os.mkdir(path + inp)
 

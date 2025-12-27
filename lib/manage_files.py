@@ -38,8 +38,8 @@ def create(username):
             create_dir(username, 'trash/')
         if 'list_items' not in list_dir:
             create_file(username, 'list_items')
-        if 'saved_reviewsessions' not in list_dir:
-            create_dir(username, 'saved_reviewsessions/')
+        if 'saved_sessions' not in list_dir:
+            create_dir(username, 'saved_sessions/')
         if 'hided_items' not in list_dir:
             create_file(username, 'hided_items')
         if 'warned_items' not in list_dir:
@@ -58,7 +58,7 @@ def create(username):
         shutil.copy(ch_path('~/basic_files/settings', mode = 'system'), ch_path('~/' + username + '/settings'))
         create_dir(username, 'trash/')
         create_file(username, 'list_items')
-        create_dir(username, 'saved_reviewsessions/')
+        create_dir(username, 'saved_sessions/')
         create_file(username, 'hided_items')
         create_file(username, 'warned_items')
         create_file(username, 'userinfo')
@@ -137,12 +137,12 @@ def delete(username):
     shutil.rmtree(ch_path('~/' + username))
 
 def create_backup(username):
-    ezip([ch_path('~/' + username + '/settings'), ch_path('~/' + username + '/hided_items'), ch_path('~/' + username + '/userinfo'), ch_path('~/' + username + '/item_settings')], [ch_path('~/' + username + '/items/'), ch_path('~/' + username + '/trash/'), ch_path('~/' + username + '/saved_reviewsessions/')], ch_path('~/' + username + '/backups/' + str(datetime.datetime.now()) + '.zip'))
+    ezip([ch_path('~/' + username + '/settings'), ch_path('~/' + username + '/hided_items'), ch_path('~/' + username + '/userinfo'), ch_path('~/' + username + '/item_settings')], [ch_path('~/' + username + '/items/'), ch_path('~/' + username + '/trash/'), ch_path('~/' + username + '/saved_sessions/')], ch_path('~/' + username + '/backups/' + str(datetime.datetime.now()) + '.zip'))
 
 def restore_backup(username, filename):
     shutil.rmtree(ch_path('~/' + username + '/items'))
     shutil.rmtree(ch_path('~/' + username + '/trash'))
-    shutil.rmtree(ch_path('~/' + username + '/saved_reviewsessions'))
+    shutil.rmtree(ch_path('~/' + username + '/saved_sessions'))
     os.remove(ch_path('~/' + username + '/settings'))
     os.remove(ch_path('~/' + username + '/list_items'))
     os.remove(ch_path('~/' + username + '/hided_items'))

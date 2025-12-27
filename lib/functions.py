@@ -441,7 +441,7 @@ def show_learn_process(list_words, settings):
     s_out('Least mistakes: \x1b[1;49;32m' + str(minimum_mistakes) + '\x1b[0m')
     s_out(' Most mistakes: \x1b[1;49;31m' + str(maximum_mistakes) + '\x1b[0m')
     s_out('Number of words where you have \x1b[1;49;32m' + str(minimum_mistakes) + '\x1b[0m mistakes: \x1b[1;49;32m' + str(number_minimum_mistakes) + '\x1b[0m')
-    if minimum_mistakes != maximum_mistakes: s_out('Aantal woorden die je \x1b[1;49;31m' + str(maximum_mistakes) + '\x1b[0m keer fout hebt beantwoord: \x1b[1;49;31m' + str(number_maximum_mistakes) + '\x1b[0m')
+    if minimum_mistakes != maximum_mistakes: s_out('Number of words you have answered \x1b[1;49;31m' + str(maximum_mistakes) + '\x1b[0m times wrong: \x1b[1;49;31m' + str(number_maximum_mistakes) + '\x1b[0m')
     s_out()
     if settings[3] > 0: s_out('    Difficult: \x1b[1;49;31m' + str(number_difficult) + '\x1b[0m')
     s_out('      Unknown: \x1b[1;49;33m' + str(number_niveau_0) + '\x1b[0m')

@@ -9,10 +9,10 @@ from extern.getch import getch
 from extern.save_output import save_output as s_out, cls
 
 from manage_files import get_list, overwrite, ch_path, delete_file, create_file, create_list, move, copy
-from review import review, proceed_review, show_saved_reviewsessions
+from review import review, proceed_session, show_saved_sessions
 from manage_items import change_list, add_list, item_options, split_list, get_item_information, show_trash
 from go_through import go_through
-from learn import learn, review_and_learn
+from learn import learn, review_and_learn, learn_all
 from functions import is_warned, ch_size, ch_time, get_scores, get_procent, synchronize, select, lower, no_punctuation_marks, no_accents
 from errors import WordIndexError, log_error
 from file_browser import browser
@@ -662,12 +662,13 @@ def learn_menu(username):
 # advenched functions
 def advenched(list_names, username, settings, errors):
     # set options
-    options = ['r', 'sr', 'cr', 'i', 'h', 'c', 's', 'E', 'I', 't', 'b', 'q']
+    options = ['r', 'ss', 'cs', 'i', 'h', 'c', 's', 'E', 'I', 't', 'b', 'q', 'l']
 
     # show options
     s_out('Review and save correct answered words as learned --> r')
-    s_out('View saved reviewsessions --> sr')
-    s_out('Continue reviewing a saved reviewsession --> cr')
+    s_out('View saved sessions --> ss')
+    s_out('Continue with a saved session --> cs')
+    s_out('Learn a session with all words in it --> l')
     s_out('Show item information --> i')
     s_out('Hide/show items --> h')
     s_out('Combine items --> c')
@@ -716,8 +717,8 @@ def advenched(list_names, username, settings, errors):
         show_trash(username)
 
     # show saved reviewsessions
-    if choice == 'sr':
-        show_saved_reviewsessions(username)
+    if choice == 'ss':
+        show_saved_sessions(username, settings)
 
     # review and save correct answered words as learned
     if choice == 'r':
@@ -745,8 +746,8 @@ def advenched(list_names, username, settings, errors):
             wait(1.5)
 
     # continue review
-    if choice == 'cr':
-        proceed_review(username, settings)
+    if choice == 'cs':
+        proceed_session(username, settings)
 
     # hide/show items
     if choice == 'h':
@@ -1054,9 +1055,9 @@ def advenched(list_names, username, settings, errors):
             number = s_inp('Type the number to export   > ')
             if number.isdigit():
                 if 0 < int(number) <= len(list_names):
-                    locatie = browser(filename = list_names[int(number) - 1], mode = 'create', type = 'f', message = 'Select a file to export')
+                    location = browser(filename = list_names[int(number) - 1], mode = 'create', type = 'f', message = 'Select a file to export')
                     try:
-                        shutil.copy(ch_path('~/' + username + '/items/' + list_names[int(number) - 1]), locatie)
+                        shutil.copy(ch_path('~/' + username + '/items/' + list_names[int(number) - 1]), location)
                     except:
                         log_error()
                         s_out('Something went wrong.')
@@ -1076,15 +1077,40 @@ def advenched(list_names, username, settings, errors):
 
     if choice == 'I':
         # import
-        locatie = browser(mode = 'open', type = 'f', message = 'Select a file to import')
+        location = browser(mode = 'open', type = 'f', message = 'Select a file to import')
         try:
-            shutil.copy(locatie, ch_path('~/' + username + '/items/'))
+            shutil.copy(location, ch_path('~/' + username + '/items/'))
         except:
             log_error()
             s_out('Something went wrong.')
             wait(1.5)
         else:
             s_out('Your item is imported!')
+            wait(1.5)
+
+    if choice == 'l':
+        # check number of items
+        if len(list_names) > 0:
+            # ask user input
+            number = s_inp('Type the number to learn   > ')
+            # check input is a number
+            if number.isdigit():
+                # check item exist
+                if 0 < int(number) <= len(list_names):
+                    if (int(number) - 1) not in errors:
+                        # learn item
+                        learn_all(username, list_names[int(number) - 1], settings)
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
+                        wait(1.5)
+                else:
+                    s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
+                    wait(1.5)
+            else:
+                s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
+                wait(1.5)
+        else:
+            s_out('\x1b[1;49;31mThat can\'t. There is nothing to learn.\x1b[0m')
             wait(1.5)
 
 # change settings
