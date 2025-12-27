@@ -1,5 +1,5 @@
 # import modules
-from .getch import getch
+from .getch import getch_ as getch, start as getch_start, stop as getch_stop
 from .save_output import save_output as s_out
 import os
 import inspect
@@ -99,7 +99,7 @@ def combi(combi_karakter):
         if len(karakters) > 2:
             return ''
 
-def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], combi_karakter = standaard_combi_karakter, hide = False):
+def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], combi_karakter = standaard_combi_karakter, hide = False, getch_start_stop = True):
     lijst_stringen = prompt.split('\n')
     if len(lijst_stringen) > 1:
         for regel in lijst_stringen[:-1]:
@@ -119,6 +119,8 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
 
     print_input(prompt, input, position_cursor, insert, hide)
 
+    fd = getch_start()
+
     while True:
         niet_toevoegen = False
         ch = getch()
@@ -128,6 +130,8 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
             continue
 
         if ch in enter_characters:
+            if getch_start_stop:
+                getch_stop(fd)
             return input, ch
 
         if ch in combi_karakter:
@@ -136,12 +140,16 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
         if ch == '\x1b' or ch == '\x00':
             c1 = getch()
             if (ch + c1) in enter_characters:
+                if getch_start_stop:
+                    getch_stop(fd)
                 return input, ch + c1
             toegevoegd = True
             if os.name != 'nt':
                 if c1 == '[':
                     c2 = getch()
                     if (ch + c1 + c2) in enter_characters:
+                        if getch_start_stop:
+                            getch_stop(fd)
                         return input, ch + c1 + c2
                     if c2 == 'D':
                         position_cursor = position_cursor - 1
@@ -154,12 +162,16 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                     elif c2 == '3':
                         c3 = getch()
                         if (ch + c1 + c2 + c3) in enter_characters:
+                            if getch_start_stop:
+                                getch_stop(fd)
                             return input, ch + c1 + c2 + c3
                         if position_cursor < len(input):
                             input = input[:position_cursor] + input[position_cursor + 1:]
                     elif c2 == '2':
                         c3 = getch()
                         if (ch + c1 + c2 + c3) in enter_characters:
+                            if getch_start_stop:
+                                getch_stop(fd)
                             return input, ch + c1 + c2 + c3
                         insert = not insert
                     elif c2 == 'H' or c2 == 'A':
@@ -169,6 +181,8 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                     elif c2 == '1':
                         c3 = getch()
                         if (ch + c1 + c2 + c3) in enter_characters:
+                            if getch_start_stop:
+                                getch_stop(fd)
                             return input, ch + c1 + c2 + c3
                         if c3 == ';':
                             c4 = getch()
@@ -277,6 +291,8 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
         elif ch == '\n':
             if os.name == 'nt':
                 s_out('\n', end = '')
+            if getch_start_stop:
+                getch_stop(fd)
             return input
 
         else:
@@ -306,4 +322,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
             input = input.replace(ongeldige_karakter, '')
 
         print_input(prompt, input, position_cursor, insert, hide)
+
+    if getch_start_stop:
+        getch_stop(fd)
 

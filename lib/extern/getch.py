@@ -2,6 +2,9 @@
 import os
 import sys
 
+if os.name != 'nt':
+    import termios
+
 # get single character
 def getch(location = sys.stdin):
     # windows
@@ -27,9 +30,6 @@ def getch(location = sys.stdin):
 
     # other
     else:
-        # use termios
-        import termios
-
         fd = location.fileno()
         orig = termios.tcgetattr(fd)
 
@@ -43,4 +43,32 @@ def getch(location = sys.stdin):
             return location.read(1)
         finally:
             termios.tcsetattr(fd, termios.TCSAFLUSH, orig)
+
+def start(location = sys.stdin):
+    if os.name == 'nt':
+        return
+
+    fd = location.fileno()
+    orig = termios.tcgetattr(fd)
+
+    new = termios.tcgetattr(fd)
+    new[3] = new[3] & ~termios.ICANON
+    new[6][termios.VMIN] = 1
+    new[6][termios.VTIME] = 0
+
+    termios.tcsetattr(fd, termios.TCSAFLUSH, new)
+
+    return fd, orig, new
+
+def getch_(location = sys.stdin):
+    if os.name == 'nt':
+        return getch(location)
+
+    return location.read(1)
+
+def stop(fd = None):
+    if os.name == 'nt':
+        return
+
+    termios.tcsetattr(fd[0], termios.TCSAFLUSH, fd[1])
 
