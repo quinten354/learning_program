@@ -7,7 +7,7 @@ from time import sleep as wait
 from extern.save_input import save_input as s_inp
 from extern.save_output import save_output as s_out, cls
 
-from manage_files import create_file, delete_file, ch_path, get_list, overwrite, delete_all
+from manage_files import create_file, delete_file, ch_path, get_list, overwrite, delete_all, copy, move
 from questions import type_ex, multiple_choise, sentence
 from learn import learn, continue_learn
 from functions import sort
@@ -263,7 +263,7 @@ def save_reviewsession(list_words, difficult_words, type, times_wrong, times_goo
     try:
         while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
             if filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
-                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', invalid_characters = ['/', '\\'])
+                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', input = filename, invalid_characters = ['/', '\\'])
             else:
                 filename = s_inp('Choose the name to save this session.   > ', invalid_characters = ['/', '\\'])
 
@@ -304,6 +304,8 @@ def save_as_new_list(output, username, settings, filename = ''):
     # overwrite file
     if settings[23] != -1:
         difficult_words = sort(difficult_words, settings[23])
+    if settings[29]:
+        difficult_words.reverse()
     overwrite(username, difficult_words, 'items/' + filename)
 
 # save and learn
@@ -328,6 +330,8 @@ def save_and_learn(output, username, settings, filename = ''):
     # overwrite file
     if settings[23] != -1:
         difficult_words = sort(difficult_words, settings[23])
+    if settings[29]:
+        difficult_words.reverse()
     overwrite(username, difficult_words, 'items/' + filename)
     # learn
     learn(username, filename, settings)
@@ -363,6 +367,8 @@ def save_and_review(output, username, settings, filename = ''):
     # overwrite file
     if settings[23] != -1:
         difficult_words = sort(difficult_words, settings[23])
+    if settings[29]:
+        difficult_words.reverse()
     overwrite(username, difficult_words, 'items/' + filename)
     # review
     review(difficult_words, username, settings)
@@ -383,17 +389,87 @@ def show_saved_sessions(username, settings):
 
         # show options
         s_out('Continue --> c')
+        s_out('Rename --> r')
+        s_out('Copy --> p')
         s_out('Delete --> d')
         s_out('Delete all --> a')
         s_out('Back --> b/q')
         choice = s_inp('   > ')
         
-        options = ['c', 'd', 'a', 'b', 'q']
+        options = ['c', 'r', 'p', 'd', 'a', 'b', 'q']
         if choice not in options:
             cls()
             s_out('\x1b[1;49;31mThat isn\'t a option!!!\x1b[0m')
             wait(1.5)
             continue
+
+        if choice == 'r':
+            if len(saved_sessions) != 0:
+                # ask number
+                number = s_inp('Type the number to rename.   > ')
+                # check is a number
+                if number.isdigit():
+                    # check exist
+                    if 0 < int(number) < (len(saved_sessions) + 1):
+                        old_name = saved_sessions[int(number) - 1]
+                        new_name = old_name
+                        while new_name == '' or new_name in os.listdir(ch_path('~/saved_sessions/')):
+                            if new_name in os.listdir(ch_path('~/saved_sessions/')) and new_name != old_name:
+                                new_name = s_inp('This name already exist. Choose another name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+                                continue
+                            new_name = s_inp('Type the new name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+
+                        # rename
+                        if new_name != old_name:
+                            move(username, 'saved_sessions/' + old_name, 'saved_sessions/' + new_name)
+
+                        cls()
+                        s_out('Successful renamed.')
+                        wait(1.5)
+
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
+                        wait(1.5)
+                else:
+                    s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
+                    wait(1.5)
+            else:
+                s_out('\x1b[1;49;31mThat can\'t. There is nothing to rename.\x1b[0m')
+                wait(1.5)
+
+        if choice == 'p':
+            if len(saved_sessions) != 0:
+                # ask number
+                number = s_inp('Type the number to copy.   > ')
+                # check is a number
+                if number.isdigit():
+                    # check exist
+                    if 0 < int(number) < (len(saved_sessions) + 1):
+                        old_name = saved_sessions[int(number) - 1]
+                        new_name = old_name
+                        while new_name == '' or new_name in os.listdir(ch_path('~/saved_sessions/')):
+                            if new_name in os.listdir(ch_path('~/saved_sessions/')) and new_name != old_name:
+                                new_name = s_inp('This name already exist. Choose another name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+                                continue
+                            new_name = s_inp('Type the new name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+
+                        # copy
+                        if new_name != old_name:
+                            copy(username, 'saved_sessions/' + old_name, 'saved_sessions/' + new_name)
+
+                        cls()
+                        s_out('Successful copied.')
+                        wait(1.5)
+
+                    else:
+                        s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
+                        wait(1.5)
+                else:
+                    s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
+                    wait(1.5)
+            else:
+                s_out('\x1b[1;49;31mThat can\'t. There is nothing to copy.\x1b[0m')
+                wait(1.5)
 
         # review
         if choice == 'c':
@@ -449,11 +525,18 @@ def show_saved_sessions(username, settings):
 
                         else:
                             filename = list_words[1]
-                            chosen_words = list_words[2]
+                            words = list_words[2]
                             not_often_had = list_words[3]
                             difficult = list_words[4]
+                            good_answered = list_words[5]
+                            mistakes = list_words[6]
+                            count_user = list_words[7]
+                            count_loop = list_words[8]
+                            dont_choice = list_words[9]
+                            chosen_at = list_words[10]
+                            number_words = list_words[11]
 
-                            continue_learn(username, filename, chosen_words, not_often_had, difficult)
+                            continue_learn(username, settings, filename, words, not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words)
                 
                     else:
                         s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
@@ -574,11 +657,18 @@ def proceed_session(username, settings):
             
     elif session_type == 'learn':
         filename = list_words[1]
-        chosen_words = list_words[2]
+        words = list_words[2]
         not_often_had = list_words[3]
         difficult = list_words[4]
+        good_answered = list_words[5]
+        mistakes = list_words[6]
+        count_user = list_words[7]
+        count_loop = list_words[8]
+        dont_choice = list_words[9]
+        chosen_at = list_words[10]
+        number_words = list_words[11]
 
-        continue_learn(username, filename, chosen_words, not_often_had, difficult)
+        continue_learn(username, settings, filename, words, not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words)
 
     else:
         print('Error. Invalid type of data.')

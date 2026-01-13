@@ -7,7 +7,7 @@ from extern.save_input import save_input as s_inp
 from extern.timeout import timeout
 from extern.save_output import save_output as s_out, cls
 
-from manage_files import get_list, ch_path, overwrite, move, delete_file, delete_all
+from manage_files import get_list, ch_path, overwrite, move, delete_file, delete_all, create_file
 from questions import type_ex, multiple_choise, sentence, retype, show_word
 from functions import is_warned, warn, sort, ch_time, get_list_index, show_target_info, show_item_settings, select, lower, no_punctuation_marks, no_accents, show_learn_process, get_procent, get_scores
 from solve import solve
@@ -246,10 +246,10 @@ def item_options(username, filename, settings):
 
         if choice == 's':
             overwrite(username, item_settings, 'item_settings')
-            return ''
+            return
 
         if choice == 'q':
-            return ''
+            return
 
 # add item
 def add_list(username, settings):
@@ -265,20 +265,33 @@ def add_list(username, settings):
             if keuze == 'r':
                 pass
             else:
-                return ''
+                return
+
+    create_file(username, 'items/' + name_item)
 
     list_item = add_words(username, name_item, [], settings)
 
+    try:
+        if len(list_item) == 0:
+            overwrite(username, list_item, 'items/' + name_item)
+            return
+    except:
+        pass
+
     if not list_item:
+        overwrite(username, list_item, 'items/' + name_item)
         change_list(username, name_item, settings)
-        return ''
+        return
 
     if settings[23] != -1:
         list_item = sort(list_item, settings[23])
+    if settings[29]:
+        list_item.reverse()
     overwrite(username, list_item, 'items/' + name_item)
 
 def add_words(username, name_item, list_item, settings, sc_menu = True):
     undoed = []
+    undo = False
     while True:
         cls()
         # ask user to type words
@@ -290,8 +303,8 @@ def add_words(username, name_item, list_item, settings, sc_menu = True):
         # show previous words
         if len(list_item) > 0:
             s_out('Previous:')
-            s_out('Given:   ' + list_item[-1][0])
-            s_out('Unknown: ' + list_item[-1][1])
+            s_out('Given:   ' + str(list_item[-1][0]))
+            s_out('Unknown: ' + str(list_item[-1][1]))
             s_out()
 
         try:
@@ -301,9 +314,9 @@ def add_words(username, name_item, list_item, settings, sc_menu = True):
             while word1 == '':
                 if len(undoed) > 0:
                     if len(list_item) > 0:
-                        word1 = s_inp('  Type the given word   > ', input = undoed[-1][0], enter_characters = ['\x0e', '\x15'] if sc_menu else ['\x15'])
+                        word1 = s_inp('  Type the given word   > ', input = str(undoed[-1][0]), enter_characters = ['\x0e', '\x15'] if sc_menu else ['\x15'])
                     else:
-                        word1 = s_inp('  Type the given word   > ', input = undoed[-1][0], enter_characters = ['\x0e'] if sc_menu else [])
+                        word1 = s_inp('  Type the given word   > ', input = str(undoed[-1][0]), enter_characters = ['\x0e'] if sc_menu else [])
                 else:
                     if len(list_item) > 0:
                         word1 = s_inp('  Type the given word   > ', enter_characters = ['\x0e', '\x15'] if sc_menu else ['\x15'])
@@ -312,11 +325,12 @@ def add_words(username, name_item, list_item, settings, sc_menu = True):
                 if type(word1) == tuple:
                     if word1[1] == '\x15':
                         undoed.append(list_item[-1].copy())
-                        del list_item[len(list_item) - 1]
-                        continue
+                        del list_item[-1]
+                        undo = True
+                        break
                     elif word1[1] == '\x0e':
                         change_content(username, name_item, settings, list_item)
-                        return None
+                        return
                     else:
                         word1 = word1[0]
     
@@ -328,14 +342,18 @@ def add_words(username, name_item, list_item, settings, sc_menu = True):
                 except:
                     pass
 
+            if undo:
+                undo = False
+                continue
+
             word2 = ''
 
             while word2 == '':
                 if len(undoed) > 0:
                     if len(list_item) > 0:
-                        word2 = s_inp('Type the unknown word   > ', input = undoed[-1][1], enter_characters = ['\x0e', '\x15'] if sc_menu else ['\x15'])
+                        word2 = s_inp('Type the unknown word   > ', input = str(undoed[-1][1]), enter_characters = ['\x0e', '\x15'] if sc_menu else ['\x15'])
                     else:
-                        word2 = s_inp('Type the unknown word   > ', input = undoed[-1][1], enter_characters = ['\x0e'] if sc_menu else [])
+                        word2 = s_inp('Type the unknown word   > ', input = str(undoed[-1][1]), enter_characters = ['\x0e'] if sc_menu else [])
                 else:
                     if len(list_item) > 0:
                         word2 = s_inp('Type the unknown word   > ', enter_characters = ['\x0e', '\x15'] if sc_menu else ['\x15'])
@@ -343,7 +361,8 @@ def add_words(username, name_item, list_item, settings, sc_menu = True):
                         word2 = s_inp('Type the unknown word   > ', enter_characters = ['\x0e'] if sc_menu else [])
                 if type(word2) == tuple:
                     if word2[1] == '\x15':
-                        continue
+                        undo = True
+                        break
                     elif word1[1] == '\x0e':
                         change_content(username, name_item, settings, list_item)
                         return None
@@ -358,18 +377,26 @@ def add_words(username, name_item, list_item, settings, sc_menu = True):
                 except IndexError:
                     pass
 
+            if undo:
+                undo = False
+                continue
+
         except KeyboardInterrupt:
             return list_item
     
         except ClosedTerminalError:
             if settings[23] != -1:
                 list_item = sort(list_item, settings[23])
+            if settings[29]:
+                list_item.reverse()
             overwrite(username, list_item, 'items/' + name_item)
             raise ClosedTerminalError
         
         except ProcessKilledError:
             if settings[23] != -1:
                 list_item = sort(list_item, settings[23])
+            if settings[29]:
+                list_item.reverse()
             overwrite(username, list_item, 'items/' + name_item)
             raise ProcessKilledError
 
@@ -510,7 +537,7 @@ def change_list(username, filename, settings):
                     lijst_waarschuwingen.append(bestandsusername)
                 overwrite(username, lijst_waarschuwingen, 'warned_items')
 
-            return ''
+            return
 
 # change content
 def change_content(username, filename, settings, list_item = None):
@@ -571,23 +598,37 @@ def change_content(username, filename, settings, list_item = None):
         # sort
         if choice_1 == 'sw':
             if len(list_item) > 0:
+                options = ['k', 'K', 'u', 'U', 'n', 'N', 'c', 'C', 'm', 'M', 'h', 'H']
                 s_out('How do you want to sort?')
-                s_out('0 --> given word')
-                s_out('1 --> unknown word')
-                s_out('2 --> niveau')
-                s_out('3 --> times in a row good')
-                s_out('4 --> number of mistakes')
-                s_out('5 --> times had')
-                number = s_inp('   > ')
-                if number.isdigit():
-                    if -1 < int(number) < 6:
-                        list_item = sort(list_item, int(number))
-                    else:
-                        s_out('That can\'t. Not 0-5.')
-                        wait(1.5)
-                else:
-                    s_out('That can\'t. Not a number.')
+                s_out('Known word --> k')
+                s_out('Unknown word --> u')
+                s_out('Niveau --> n')
+                s_out('Times in a row correct --> c')
+                s_out('Mistakes --> m')
+                s_out('Times had --> h')
+                sorting = s_inp('   > ')
+
+                if sorting not in options:
+                    s_out('\x1b[1;49;31mThat isn\'t a option!\x1b[0m')
                     wait(1.5)
+                    continue
+
+                if sorting == 'k' or sorting == 'K':
+                    list_item = sort(list_item, 0)
+                if sorting == 'u' or sorting == 'U':
+                    list_item = sort(list_item, 1)
+                if sorting == 'n' or sorting == 'N':
+                    list_item = sort(list_item, 2)
+                if sorting == 'c' or sorting == 'C':
+                    list_item = sort(list_item, 3)
+                if sorting == 'm' or sorting == 'M':
+                    list_item = sort(list_item, 4)
+                if sorting == 'h' or sorting == 'H':
+                    list_item = sort(list_item, 5)
+
+                if sorting.isupper():
+                    list_item.reverse()
+
             else:
                 s_out('That can\'t. No words.')
                 wait(1.5)
@@ -596,6 +637,8 @@ def change_content(username, filename, settings, list_item = None):
         if choice_1 == 's':
             if settings[23] != -1:
                 list_item = sort(list_item, settings[23])
+            if settings[29]:
+                list_item.reverse()
             overwrite(username, list_item, 'items/' + filename)
             list_scores = get_list(username, 'list_items')
             for i in range(len(list_scores)):
@@ -685,13 +728,13 @@ def change_words(username, filename, list_item, settings):
                 s_out(select('         Unknown word: ' + str(list_item[wordnumber][1]), txt_search))
                 if view_userinfo:
                     # show niveau
-                    s_out(select('                 Niveau: ' + str(list_item[wordnumber][2]), txt_search))
+                    s_out(select('               Niveau: ' + str(list_item[wordnumber][2]), txt_search))
                     # show times in a row good
-                    s_out(select('    Times in a row good: ' + str(list_item[wordnumber][3]), txt_search))
+                    s_out(select('  Times in a row good: ' + str(list_item[wordnumber][3]), txt_search))
                     # show number of mistakes
-                    s_out(select('               Mistakes: ' + str(list_item[wordnumber][4]), txt_search))
+                    s_out(select('             Mistakes: ' + str(list_item[wordnumber][4]), txt_search))
                     # show times had
-                    s_out(select('              Times had: ' + str(list_item[wordnumber][5]), txt_search))
+                    s_out(select('            Times had: ' + str(list_item[wordnumber][5]), txt_search))
 
                 s_out()
                 num_found = num_found + 1
@@ -760,7 +803,7 @@ def change_words(username, filename, list_item, settings):
 
         # add words
         if choice_2 == 'A':
-            list_item = add_words(username, name, list_item.copy, settings, False)
+            list_item = add_words(username, filename, list_item.copy(), settings, False)
             
         if choice_2 == 'q':
             return list_item
@@ -811,7 +854,7 @@ def split_list(username, filename, settings):
 
     # cancel
     if choice == 'c':
-        return ''
+        return
 
     # fair share
     if choice == 'd':
@@ -874,6 +917,8 @@ def split_list(username, filename, settings):
             data = sort(splitted_items[number], settings[23])
         else:
             data = splitted_items[number].copy()
+        if settings[29]:
+            data.reverse()
         overwrite(username, data, 'items/' + itemname)
 
 # trash
@@ -957,5 +1002,5 @@ def show_trash(username):
 
         # back
         if choice == 'b' or choice == 'q':
-            return ''
+            return
 

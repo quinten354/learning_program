@@ -157,8 +157,15 @@ def remove_backup(username, filename):
 def remove_all_backups(username):
     delete_all(username, 'backups/')
 
-def log_data(username, data):
+def log_data(username, *args):
+    data = ''
+    for arg in args:
+        data = data + str(arg) + '\n'
+    data = data[:-1]
+    data = data.replace('\n', '\n' + (' ' * 21))
+    if data[-22:] == ('\n' + (' ' * 21)):
+        data = data[:-22]
     file = open(ch_path('~/' + username + '/debug.log'), mode = 'a')
-    file.write(str(datetime.datetime.now()) + ': ' + (data if data[-1] == '\n' else data + '\n'))
+    file.write(str(datetime.datetime.now()).split('.')[0] + ': ' + (data if data[-1] == '\n' else data + '\n'))
     file.close()
 

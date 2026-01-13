@@ -10,7 +10,7 @@ from extern.save_input import save_input as s_inp
 from file_browser import browser
 from errors import log_error
 
-version = '3.1'
+version = '3.3'
 
 # update the program
 def update(path_info):

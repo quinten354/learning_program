@@ -1,7 +1,7 @@
 # Learning program: learn words, sentences and grammer
 # Autor:   Quinten Taminiau
-# Date:    25-11-2025
-# Version: 3.1
+# Date:    11-01-2026
+# Version: 3.3
 # Python:  3.11
 
 import os
@@ -86,10 +86,10 @@ if len(args) == 1:
         exit()
     except Exception as exception:
         if type(exception) != SystemExit:
-            print('\nProgram ended with exit-code 1.')
+            print('\nA unexpected error occured.')
             log_error()
             if os.name == 'nt' and not quiet: input('Press enter to close the program. ')
-            exit(1)
+            exit()
         else:
             exit()
 

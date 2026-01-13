@@ -7,7 +7,8 @@ from extern.save_input import save_input as s_inp
 from extern.save_output import save_output as s_out, cls
 from extern.timeout import timeout
 
-from manage_files import get_list, ch_path, overwrite, move, log_data
+#from manage_files import get_list, ch_path, overwrite, move, log_data, create_file
+from manage_files import get_list, ch_path, overwrite, move, create_file
 from manage_items import change_content
 from questions import type_ex, multiple_choise, sentence, retype, show_word
 from functions import is_warned, warn, sort, ch_time, get_list_index, show_target_info, select, lower, no_punctuation_marks, no_accents, show_learn_process, get_procent, get_scores
@@ -175,7 +176,6 @@ def learn(username, filename, settings):
                         chosen_words.append(wordnumber)
                         # count words
                         count_select_words = count_select_words + 1
-                    log_data(username, 'Selected owa: ' + str(wordnumber) + '    ' + str(learn_info[0][wordnumber]))
                 if count_select_words == settings[27]:
                     break
 
@@ -200,24 +200,30 @@ def learn(username, filename, settings):
 def learn_all(username, filename, settings):
     learn_info = list(get_learn_info(username, filename, settings))
     chosen_words = []
-    for wordnumber in range(len(learn_info[0])):
-        chosen_words.append(wordnumber)
+    for number in range(len(learn_info[0])):
+        chosen_words.append(number)
     learn_session(chosen_words, username, filename, settings, learn_info, repeat = False)
         
-def learn_session(chosen_words, username, filename, settings, learn_info = None, not_often_had = [], difficult = [], repeat = True):
+def learn_session(chosen_words, username, filename, settings, learn_info = None, not_often_had = None, difficult = None, repeat = True, good_answered = 0, mistakes = 0, count_user = 1, count_loop = 0, dont_choice = None, chosen_at = None, number_words = None):
     # set variables
-    good_answered = 0
-    mistakes = 0
-    number_words = len(chosen_words)
-    count_user = 1
-    count_loop = 0
-    dont_choice = []
-    chosen_at = []
-
     if not learn_info:
-        learn_info = list(get_learn_info(username, filename))
+        learn_info = list(get_learn_info(username, filename, settings))
 
-    log_data(username, 'New session, chosen_words: ' + str(chosen_words) + ', not_often_had: ' + str(not_often_had) + ', difficult: ' + str(difficult))
+    if not not_often_had:
+        not_often_had = []
+
+    if not difficult:
+        difficult = []
+
+    if not dont_choice:
+        dont_choice = []
+
+    if not chosen_at:
+        chosen_at = []
+
+    if not number_words:
+        number_words = len(chosen_words)
+
 
     # ask questions while there are words
     # (if the user makes a mistake, the word can not be deleted in chosen_words, the user get that word a next time in this session)
@@ -304,7 +310,6 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
 
                 count_choice_word = count_choice_word + 1
 
-            log_data(username, 'Not chose: ' + str(may_not_chose) + ', ' + chosen_by + ' ' + str(wordnumber))
             
             # check words are difficult
             for difficult_word in difficult:
@@ -313,7 +318,7 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
 
             # get scores
             scores = get_scores(learn_info[0], settings)
-            procent_met_leren, punten, max_punten = scores[0], scores[4], scores[5]
+            procent_learn, punten, max_punten = scores[0], scores[4], scores[5]
             # generate info for user
             info = ''
             # process in this session
@@ -337,7 +342,7 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
                 info = info + 'words'
             info = info + ' difficult    '
             # learning process
-            info = info + (('\x1b[1;49;32mLearned!!!\x1b[0m') if procent_met_leren == 100 else ('You\'re at ' + str(round(procent_met_leren)) + '% with learn.'))
+            info = info + (('\x1b[1;49;32mLearned!!!\x1b[0m') if procent_learn == 100 else ('You\'re at ' + str(round(procent_learn)) + '% with learn.'))
             info = info + ' (' + str(round(punten * 3)) + '/' + str(round(max_punten * 3)) + ')'
 
             # split pipe
@@ -409,7 +414,7 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
                     show_word(learn_info[0][wordnumber])
                 else:
                     # retype word
-                    retype(learn_info[0][wordnumber])
+                    retype(learn_info[0][wordnumber], settings)
 
                 # mark as good answered
                 output = True
@@ -450,12 +455,12 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
         # close learn session when a event happend
         except KeyboardInterrupt:
             cls()
-            output = s_inp('Do you want to quit or save? (y/n/s)   > ')
-            while output not in ['y', 'n', 's']:
+            output = s_inp('Do you want to continue, quit or save? (c/q/s)   > ')
+            while output not in ['c', 'q', 's']:
                 print('\x1b[1;49;31mThat isn\'t a option!\x1b[0m')
-                output = s_inp('Do you want to quit or save? (y/n/s)   > ')
+                output = s_inp('Do you want to continue, quit or save? (c/q/s)   > ')
 
-            if output == 'y':
+            if output == 'q':
                 overwrite(username, learn_info[0], 'items/' + filename)
                 list_scores = get_list(username, 'list_items')
                 for i in range(len(list_scores)):
@@ -467,7 +472,16 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
                 return 'Quit'
 
             elif output == 's':
-                save(username, filename, chosen_words, not_often_had, difficult)
+                overwrite(username, learn_info[0], 'items/' + filename)
+                list_scores = get_list(username, 'list_items')
+                for i in range(len(list_scores)):
+                    if list_scores[i][0] == filename:
+                        list_scores[i][1] = len(learn_info[0])
+                        list_scores[i][2] = get_procent(*get_scores(learn_info[0], settings))
+                overwrite(username, list_scores, 'list_items')
+                overwrite(username, learn_info[1], 'item_settings')
+
+                save(username, filename, chosen_words, learn_info[0], not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words)
                 return 'Quit'
 
             else:
@@ -631,6 +645,8 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
     # save
     if settings[23] != -1:
         learn_info[0] = sort(learn_info[0], settings[23])
+    if settings[29]:
+        learn_info[0].reverse()
     overwrite(username, learn_info[0], 'items/' + filename)
     list_scores = get_list(username, 'list_items')
     for i in range(len(list_scores)):
@@ -664,13 +680,21 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
     else:
         s_inp('Press enter to go back. ')
 
-def save(username, filename, chosen_words, not_often_had, difficult):
+def save(username, filename_org, chosen_words, list_words, not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words):
+    filename = filename_org
+    words = []
+    for word in chosen_words:
+        words.append([list_words[word][0], list_words[word][1]])
+    count = 0
     try:
-        while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
+        while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')) or count == 0:
             if filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
-                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', invalid_characters = ['/', '\\'])
-            else:
-                filename = s_inp('Choose the name to save this session.   > ', invalid_characters = ['/', '\\'])
+                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', input = filename, invalid_characters = ['/', '\\'])
+                continue
+
+            filename = s_inp('Choose the name to save this session.   > ', input = filename, invalid_characters = ['/', '\\'])
+
+            count = count + 1
 
         # create file
         create_file(username, 'saved_sessions/' + filename)
@@ -678,17 +702,24 @@ def save(username, filename, chosen_words, not_often_had, difficult):
     except KeyboardInterrupt:
         if filename == '':
             s_out('Can\'t accept no input.')
-            save_reviewsession(list_words, difficult_words, type, times_wrong, times_good, number_words_had, total_number_of_words, times_in_a_row_good, all_words, username)
+            save(username, filename_org, chosen_words, list_words, not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words)
             return '' 
 
         else:
             s_out('Overwrite.')
 
     # overwrite
-    overwrite(username, [['learn'], [filename], chosen_words, not_often_had, difficult])
+    overwrite(username, [['learn'], [filename_org], words, not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words], 'saved_sessions/' + filename)
 
-def continue_learn(username, filename, chosen_words, not_often_had, difficult):
-    learn_session(username, filename[0], chosen_words, not_often_had, difficult)
+def continue_learn(username, settings, filename, words, not_often_had, difficult, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words):
+    learn_info = get_learn_info(username, filename[0], settings)
+    chosen_words = []
+    for wordnumber in range(len(learn_info[0])):
+        for word in words:
+            if learn_info[0][wordnumber][0] == word[0] and learn_info[0][wordnumber][1] == word[1]:
+                chosen_words.append(wordnumber)
+
+    learn_session(chosen_words, username, filename[0], settings, None, not_often_had, difficult, False, good_answered, mistakes, count_user, count_loop, dont_choice, chosen_at, number_words)
 
 # review and save good answered words as learned
 def review_and_learn(username, filename, settings):
@@ -757,6 +788,8 @@ def review_and_learn(username, filename, settings):
 
         if settings[23] != -1:
             list_item = sort(list_item, settings[23])
+        if settings[29]:
+            learn_info[0].reverse()
         overwrite(username, list_item, 'items/' + filename)
         list_scores = get_list(username, 'list_items')
         for i in range(len(list_scores)):
@@ -772,6 +805,8 @@ def review_and_learn(username, filename, settings):
     
         if settings[23] != -1:
             list_item = sort(list_item, settings[23])
+        if settings[29]:
+            learn_info[0].reverse()
         overwrite(username, list_item, 'items/' + filename)
         list_scores = get_list(username, 'list_items')
         for i in range(len(list_scores)):
@@ -786,6 +821,8 @@ def review_and_learn(username, filename, settings):
 
     if settings[23] != -1:
         list_item = sort(list_item, settings[23])
+    if settings[29]:
+        learn_info[0].reverse()
     overwrite(username, list_item, 'items/' + filename)
     list_scores = get_list(username, 'list_items')
     for i in range(len(list_scores)):

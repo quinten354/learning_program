@@ -18,16 +18,17 @@ def show_word(word):
     s_inp('Press enter to continue. ')
 
 # retype word
-def retype(word):
+def retype(word, settings):
     s_out('Given word:   ' + word[0])
     s_out('Unknown word: ' + word[1])
     s_out()
     inp = ''
-    while inp != word[1]:
+    while not check_answer(inp, word[1], settings):
         inp = s_inp('Type the unknown word   > ', input = inp)
-        if inp != '' and inp != word[1]:
+        if inp != '' and not check_answer(inp, word[1], settings):
             s_out('\x1b[1;49;31mThat can\'t!!!\x1b[0m')
             wait(1.5)
+
     s_out('\x1b[1;49;32mThat\'s correct!!!\x1b[0m')
     wait(1.5)
 
@@ -123,10 +124,20 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
             answer = words[selected][1]
 
         else:
-            s_out('This isn\'t a correct input.')
-            s_out('Press ctrl + backspace to delete your input.')
-            wait(1.5)
-            continue
+            good = False
+            for answer in answers:
+                if check_answer(inp, answer, settings):
+                    good = True
+
+            if good:
+                check = True
+                answer = inp
+
+            else:
+                s_out('This isn\'t a correct input.')
+                s_out('Press ctrl + backspace to delete your input.')
+                wait(1.5)
+                continue
 
         # check
         if check:

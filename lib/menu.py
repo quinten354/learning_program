@@ -13,7 +13,7 @@ from review import review, proceed_session, show_saved_sessions
 from manage_items import change_list, add_list, item_options, split_list, get_item_information, show_trash
 from go_through import go_through
 from learn import learn, review_and_learn, learn_all
-from functions import is_warned, ch_size, ch_time, get_scores, get_procent, synchronize, select, lower, no_punctuation_marks, no_accents
+from functions import is_warned, ch_size, ch_time, get_scores, get_procent, synchronize, select, lower, no_punctuation_marks, no_accents, sort
 from errors import WordIndexError, log_error
 from file_browser import browser
 
@@ -33,8 +33,6 @@ def learn_menu(username):
     errors = []
 
     while True:
-        # clear screen
-        cls()
         # get the names of all files in items
         list_names = os.listdir(ch_path('~/' + username + '/items'))
         number_items = len(list_names)
@@ -119,29 +117,16 @@ def learn_menu(username):
                 if hided_item in list_names:
                     list_names.remove(hided_item)
 
-        # show legend
-        if settings[26] and len(list_names) > 0:
-            s_out('Num   Name' + (' ' * (width_screen - 4)), end = '')
-            if settings[24][0]:
-                s_out('Last modified         ', end = '')
-            if settings[24][1]:
-                s_out('Size  ', end = '')
-            if settings[24][2]:
-                s_out('\x1b[DWords ', end = '')
-            if settings[24][3]:
-                s_out('W/E ', end = '')
-            if settings[24][4]:
-                s_out('Info      ', end = '')
-            if settings[24][5]:
-                s_out('Learn process     ', end = '')
-            s_out()
-
         # sort names
-        if settings[15] == 1: list_names.sort()
+        #if settings[15] == 1: list_names.sort()
+
+        # calculate information to show
+        item_information = []
 
         count = 0
         write_warnings = False
         for i in range(len(list_names)):
+            item_info = []
             # set variables
             number_words = ''
             score = ''
@@ -221,7 +206,9 @@ def learn_menu(username):
 
             if show_item:
                 # show item number
-                s_out(select(str(i + 1) + ': ', txt_search) + (' ' * (4 - len(str(i + 1)))), end = '')
+                #s_out(select(str(i + 1) + ': ', txt_search) + (' ' * (4 - len(str(i + 1)))), end = '')
+
+                printable_item_name = ''
 
                 # show item name
                 max_length = width_screen - 6
@@ -229,86 +216,121 @@ def learn_menu(username):
                 while len(name_item) >= max_length and max_length > 10:
                     show_name_item = name_item[:max_length] + '      \x1b[1;49;37m|\x1b[0m\n  \x1b[1;49;37m\\\x1b[0m   '
                     name_item = name_item[max_length:]
-                    s_out(select(show_name_item, txt_search), end = '')
+                    printable_item_name = printable_item_name + select(show_name_item, txt_search)
+                    #s_out(select(show_name_item, txt_search), end = '')
 
-                s_out(select(name_item, txt_search), end = '')
+                #s_out(select(name_item, txt_search), end = '')
+                printable_item_name = printable_item_name + select(name_item, txt_search)
 
                 # complete line with spaces or lines
-                s_out('\x1b[2;49;2m' + ((' ' if count % 6 != 2 else '-') * (width_screen - len(name_item))) + '\x1b[0m', end = '')
+                #s_out('\x1b[2;49;2m' + ((' ' if count % 6 != 2 else '-') * (width_screen - len(name_item))) + '\x1b[0m', end = '')
+                printable_item_name = printable_item_name + '\x1b[2;49;2m' + ((' ' if count % 6 != 2 else '-') * (width_screen - len(name_item))) + '\x1b[0m'
+
+                item_info.append(printable_item_name)
 
                 # show last change
                 if settings[24][0]:
-                    s_out(select(str(datetime.datetime.fromtimestamp(os.path.getmtime(ch_path('~/' + username + '/items/' + list_names[i])))).split('.')[0], txt_search) + '   ', end = '')
+                    #s_out(select(str(datetime.datetime.fromtimestamp(os.path.getmtime(ch_path('~/' + username + '/items/' + list_names[i])))).split('.')[0], txt_search) + '   ', end = '')
+                    item_info.append(select(str(datetime.datetime.fromtimestamp(os.path.getmtime(ch_path('~/' + username + '/items/' + list_names[i])))).split('.')[0], txt_search) + '   ')
 
                 # show size
                 if settings[24][1]:
-                    s_out(select(ch_size(os.path.getsize(ch_path('~/' + username + '/items/' + list_names[i]))), txt_search).replace('K', '\x1b[1;49;33mK\x1b[0m').replace('M', '\x1b[1;49;33mM\x1b[0m').replace('G', '\x1b[1;49;33mG\x1b[0m').replace('T', '\x1b[1;49;33mT\x1b[0m') + ' ', end = '')
+                    #s_out(select(ch_size(os.path.getsize(ch_path('~/' + username + '/items/' + list_names[i]))), txt_search).replace('K', '\x1b[1;49;33mK\x1b[0m').replace('M', '\x1b[1;49;33mM\x1b[0m').replace('G', '\x1b[1;49;33mG\x1b[0m').replace('T', '\x1b[1;49;33mT\x1b[0m') + ' ', end = '')
+                    item_info.append(select(ch_size(os.path.getsize(ch_path('~/' + username + '/items/' + list_names[i]))), txt_search).replace('K', '\x1b[1;49;33mK\x1b[0m').replace('M', '\x1b[1;49;33mM\x1b[0m').replace('G', '\x1b[1;49;33mG\x1b[0m').replace('T', '\x1b[1;49;33mT\     x1b[0m') + ' ')
 
                 # show number of words
                 if settings[24][2]:
-                    s_out(select(str(number_words), txt_search) + ((' ' * (5 - len(str(number_words)))) if len(str(number_words)) < 5 else ' '), end = '')
+                    #s_out(select(str(number_words), txt_search) + ((' ' * (5 - len(str(number_words)))) if len(str(number_words)) < 5 else ' '), end = '')
+                    item_info.append(select(str(number_words), txt_search) + ((' ' * (5 - len(str(number_words)))) if len(str(number_words)) < 5 else ' '))
 
                 # show state
                 if settings[24][3]:
+                    printable_text = ''
                     spaces = 4
                     if error:
-                        s_out('\x1b[1;49;31m' + select('E', txt_search) + '\x1b[0m', end = '')
+                        #s_out('\x1b[1;49;31m' + select('E', txt_search) + '\x1b[0m', end = '')
+                        printable_text = printable_text + '\x1b[1;49;31m' + select('E', txt_search) + '\x1b[0m'
                         spaces = spaces - 1
                     if list_names[i] in hided_items:
-                        s_out('\x1b[1;49;33m' + select('H', txt_search) + '\x1b[0m', end = '')
+                        #s_out('\x1b[1;49;33m' + select('H', txt_search) + '\x1b[0m', end = '')
+                        printable_text = printable_text + '\x1b[1;49;33m' + select('H', txt_search) + '\x1b[0m'
                         spaces = spaces - 1
                     if list_names[i] in warned_items:
-                        s_out('\x1b[1;49;33m' + select('W', txt_search) + '\x1b[0m', end = '')
+                        #s_out('\x1b[1;49;33m' + select('W', txt_search) + '\x1b[0m', end = '')
+                        printable_text = printable_text + '\x1b[1;49;33m' + select('W', txt_search) + '\x1b[0m'
                         spaces = spaces - 1
                     for item_setting in item_settings:
                         try:
                             if item_setting[0] == list_names[i] and item_setting[1] != 0:
                                 if (item_setting[1] + item_setting[2]) < time():
-                                    s_out('\x1b[1;49;33m' + select('T', txt_search) + '\x1b[0m', end = '')
+                                    #s_out('\x1b[1;49;33m' + select('T', txt_search) + '\x1b[0m', end = '')
+                                    printable_text = printable_text + '\x1b[1;49;33m' + select('T', txt_search) + '\x1b[0m'
                                 else:
-                                    s_out('\x1b[1;49;37m' + select('t', txt_search) + '\x1b[0m', end = '')
+                                    #s_out('\x1b[1;49;37m' + select('t', txt_search) + '\x1b[0m', end = '')
+                                    printable_text = printable_text + '\x1b[1;49;37m' + select('t', txt_search) + '\x1b[0m'
                                 spaces = spaces - 1
 
                         except IndexError:
-                            s_out('\x1b[1;49;31m' + select('T', txt_search) + '\x1b[0m', end = '')
+                            #s_out('\x1b[1;49;31m' + select('T', txt_search) + '\x1b[0m', end = '')
+                            printable_text = printable_text + '\x1b[1;49;31m' + select('T', txt_search) + '\x1b[0m'
                             spaces = spaces - 1
 
                     if spaces == 4:
-                        s_out('\x1b[1;49;37m' + select('G', txt_search) + '\x1b[0m', end = '')
+                        #s_out('\x1b[1;49;37m' + select('G', txt_search) + '\x1b[0m', end = '')
+                        printable_text = printable_text + '\x1b[1;49;37m' + select('G', txt_search) + '\x1b[0m'
                         spaces = spaces - 1
 
-                    s_out(' ' * spaces, end = '')
+                    #s_out(' ' * spaces, end = '')
+                    printable_text = printable_text + ' ' * spaces
+
+                    item_info.append(printable_text)
 
                 # show item settings
                 if settings[24][5]:
+                    printable_text = ''
                     try:
                         count_is = 0
                         for item_setting in item_settings:
                             if item_setting[0] == list_names[i] and item_setting[1] != 0:
                                 curtime = time()
                                 if (item_setting[1] - (curtime - item_setting[2])) > 0:
-                                    s_out(select(ch_time(item_setting[1] - (curtime - item_setting[2]))[0], txt_search), end = '')
-                                    s_out(' ' * (6 - len(ch_time(curtime - item_setting[2])[0])), end = '')
+                                    #s_out(select(ch_time(item_setting[1] - (curtime - item_setting[2]))[0], txt_search), end = '')
+                                    printable_text = printable_text + select(ch_time(item_setting[1] - (curtime - item_setting[2]))[0], txt_search)
+                                    #s_out(' ' * (6 - len(ch_time(curtime - item_setting[2])[0])), end = '')
+                                    printable_text = printable_text + ' ' * (6 - len(ch_time(curtime - item_setting[2])[0]))
                                 else:
-                                    s_out(select('\x1b[1;49;33mNow\x1b[0m   ', txt_search), end = '')
+                                    #s_out(select('\x1b[1;49;33mNow\x1b[0m   ', txt_search), end = '')
+                                    printable_text = printable_text + select('\x1b[1;49;33mNow\x1b[0m   ', txt_search)
 
-                                s_out(select(str(item_setting[3]) + str(item_setting[4]), txt_search), end = '')
-                                s_out(' ' * (4 - len(str(item_setting[3]) + str(item_setting[4]))), end = '')
+                                #s_out(select(str(item_setting[3]) + str(item_setting[4]), txt_search), end = '')
+                                printable_text = printable_text + select(str(item_setting[3]) + str(item_setting[4]), txt_search)
+                                #s_out(' ' * (4 - len(str(item_setting[3]) + str(item_setting[4]))), end = '')
+                                printable_text = printable_text + ' ' * (4 - len(str(item_setting[3]) + str(item_setting[4])))
                                 count_is = count_is + 1
                                 break
 
                         if count_is == 0:
-                            s_out('\x1b[1;49;36m' + select('None info', txt_search) + '\x1b[0m ', end = '')
+                            #s_out('\x1b[1;49;36m' + select('None info', txt_search) + '\x1b[0m ', end = '')
+                            printable_text = printable_text + '\x1b[1;49;36m' + select('None info', txt_search) + '\x1b[0m '
 
                     except IndexError:
                         log_error()
-                        s_out('\x1b[1;49;31m' + select('ERROR!', txt_search) + '   \x1b[0m ', end = '')
+                        #s_out('\x1b[1;49;31m' + select('ERROR!', txt_search) + '   \x1b[0m ', end = '')
+                        printable_text = printable_text + '\x1b[1;49;31m' + select('ERROR!', txt_search) + '   \x1b[0m '
+
+                    item_info.append(printable_text)
                         
 
                 # show score
                 if settings[24][4]:
-                    s_out(select(score, txt_search))
+                    #s_out(select(score, txt_search))
+                    item_info.append(select(score, txt_search))
 
+                else:
+                    #s_out()
+                    pass
+
+                item_information.append(item_info)
                 count = count + 1
 
         # overwrite if it needed
@@ -316,6 +338,40 @@ def learn_menu(username):
             overwrite(username, list_scores, 'list_items')
         if write_warnings:
             overwrite(username, warned_items, 'warned_items')
+
+        # clear screen
+        cls()
+
+        # show legend
+        if settings[26] and len(list_names) > 0:
+            s_out('Num   Name' + (' ' * (width_screen - 4)), end = '')
+            if settings[24][0]:
+                s_out('Last modified         ', end = '')
+            if settings[24][1]:
+                s_out('Size  ', end = '')
+            if settings[24][2]:
+                s_out('\x1b[DWords ', end = '')
+            if settings[24][3]:
+                s_out('W/E ', end = '')
+            if settings[24][4]:
+                s_out('Info      ', end = '')
+            if settings[24][5]:
+                s_out('Learn process     ', end = '')
+            s_out()
+
+        # sort
+        if settings[15] != -1:
+            item_information = sort(item_information, settings[15])
+
+        if settings[28]:
+            item_information.reverse()
+
+        # show all
+        for number in range(len(item_information)):
+            s_out(select(str(number + 1) + ': ', txt_search) + (' ' * (4 - len(str(number + 1)))), end = '')
+            for string in item_information[number]:
+                s_out(string, end = '')
+            s_out()
 
         # show extra info
         if count > 0:
@@ -1177,9 +1233,18 @@ def ch_settings(username):
             # sorting and information
             s_out('\x1b[1;49;34mSettings to sort and show information\x1b[0m')
             s_out('Way of sorting: ', end = '')
-            if settings[15] == 0: s_out('don\'t sort', end = '')
-            elif settings[15] == 1: s_out('alphabetically', end = '')
-            else: s_out('ERROR', end = '')
+            if settings[15] == -1: s_out('don\'t sort', end = '')
+            elif settings[15] == 0: s_out('name', end = '')
+            elif settings[15] == 1: s_out('last modified', end = '')
+            elif settings[15] == 2: s_out('size', end = '')
+            elif settings[15] == 3: s_out('number of words', end = '')
+            elif settings[15] == 4: s_out('warnings/errors', end = '')
+            elif settings[15] == 5: s_out('info', end = '')
+            elif settings[15] == 6: s_out('learn process', end = '')
+            else: s_out('\x1b[1;49;31mERROR\x1b[0m', end = '')
+
+            if settings[28]: s_out(', reserved', end = '')
+
             s_out(' --> st')
 
             s_out('Show information of items: ', end = '')
@@ -1198,6 +1263,8 @@ def ch_settings(username):
             elif settings[23] == 3: s_out('number of times in a row correct', end = '')
             elif settings[23] == 4: s_out('number of mistakes', end = '')
             elif settings[23] == 5: s_out('number of times answered', end = '')
+
+            if settings[29]: s_out(', reversed', end = '')
             s_out(' --> si')
 
             s_out()
@@ -1549,48 +1616,88 @@ def ch_settings(username):
 
             # way of sort
             if choice == 'st':
-                number = -1
+                options = ['d', 'D', 'n', 'N', 'm', 'M', 's', 'S', 'w', 'W', 'i', 'I', 'l', 'L']
                 while True:
                     cls()
                     s_out('Choose the way of sort.')
-                    s_out('0 --> Not sorted')
-                    s_out('1 --> Alphabetically')
-                    number = s_inp('   > ')
-                    if number.isdigit():
-                        if -1 < int(number) < 2:
-                            break
-                        else:
-                            s_out('\x1b[1;49;31mInvalid number!\x1b[0m')
-                            wait(1.5)
-                    else:
-                        s_out('\x1b[1;49;31mNot a number!\x1b[0m')
-                        wait(1.5)
-                settings[15] = int(number)
+                    s_out('Don\'t sort --> d')
+                    s_out('Name --> n')
+                    s_out('Last modified --> m')
+                    s_out('Size --> s')
+                    s_out('Warnings/errors --> w')
+                    s_out('Info --> i')
+                    s_out('Learn process --> l')
+                    s_out('Type uppercase for reversed sorting.')
+                    sorting = s_inp('   > ')
+
+                    if sorting in options:
+                        break
+
+                    s_out('\x1b[1;49;31mThat isn\'t a option!\x1b[0m')
+                    wait(1.5)
+                    continue
+
+                if sorting == 'd' or sorting == 'D':
+                    settings[15] = -1
+                if sorting == 'n' or sorting == 'N':
+                    settings[15] = 0
+                if sorting == 'm' or sorting == 'M':
+                    settings[15] = 1
+                if sorting == 's' or sorting == 'S':
+                    settings[15] = 2
+                if sorting == 'w' or sorting == 'W':
+                    settings[15] = 3
+                if sorting == 'i' or sorting == 'I':
+                    settings[15] = 4
+                if sorting == 'l' or sorting == 'L':
+                    settings[15] = 5
+
+                if sorting.isupper():
+                    settings[28] = True
+                else:
+                    settings[28] = False
 
             # way of sort between words
             if choice == 'si':
-                number = -2
+                options = ['d', 'D', 'k', 'K', 'u', 'U', 'n', 'N', 'c', 'C', 'm', 'M', 'h', 'H']
                 while True:
                     cls()
                     s_out('Choose the way of sort between words.')
-                    s_out('-1 --> Not sorted')
-                    s_out('0  --> Alphabetically by known word')
-                    s_out('1  --> Alphabetically by unknown word')
-                    s_out('2  --> Niveau')
-                    s_out('3  --> Number of times in a row correct')
-                    s_out('4  --> Number of mistakes')
-                    s_out('5  --> Number of times answered')
-                    number = s_inp('   > ')
-                    if number.isdigit() or number == '-1':
-                        if -2 < int(number) < 6:
-                            break
-                        else:
-                            s_out('\x1b[1;49;31mInvalid number!\x1b[0m')
-                            wait(1.5)
-                    else:
-                        s_out('\x1b[1;49;31mNot a number!\x1b[0m')
-                        wait(1.5)
-                settings[23] = int(number)
+                    s_out('Don\'t sort --> d')
+                    s_out('Known word --> k')
+                    s_out('Unknown word --> u')
+                    s_out('Niveau --> n')
+                    s_out('Times in a row correct --> c')
+                    s_out('Mistakes --> m')
+                    s_out('Times had --> h')
+                    sorting = s_inp('   > ')
+
+                    if sorting in options:
+                        break
+
+                    s_out('\x1b[1;49;31mThat isn\'t a option!\x1b[0m')
+                    wait(1.5)
+                    continue
+
+                if sorting == 'd' or sorting == 'D':
+                    settings[23] = -1
+                if sorting == 'n' or sorting == 'N':
+                    settings[23] = 0
+                if sorting == 'm' or sorting == 'M':
+                    settings[23] = 1
+                if sorting == 's' or sorting == 'S':
+                    settings[23] = 2
+                if sorting == 'w' or sorting == 'W':
+                    settings[23] = 3
+                if sorting == 'i' or sorting == 'I':
+                    settings[23] = 4
+                if sorting == 'l' or sorting == 'L':
+                    settings[23] = 5
+
+                if sorting.isupper():
+                    settings[29] = True
+                else:
+                    settings[29] = False
 
             # go from niveau 1 to niveau 2
             if choice == 'g1':

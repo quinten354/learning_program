@@ -108,16 +108,16 @@ def show_mistake(user_answer, good_answer, list_words = []):
             s_out('You have answered the answer of word \'\x1b[0;49;4m' + word[0] + '\x1b[0m\'.')
 
 # sort list with lists
-def sort(list_items, sortnumber = 0):
+def sort(list_, sortnumber = 0):
     relevant_items = []
-    for listitem in list_items:
+    for listitem in list_:
         if listitem[sortnumber] not in relevant_items:
             relevant_items.append(listitem[sortnumber])
 
     relevant_items.sort()
     sorted_list = []
     for item in relevant_items:
-        for listitem in list_items:
+        for listitem in list_:
             if listitem[sortnumber] == item:
                 sorted_list.append(listitem)
 
@@ -458,7 +458,6 @@ def synchronize(name, settings):
     # get names
     list_names = os.listdir(ch_path('~/' + name + '/items'))
     item_settings = get_list(name, 'item_settings')
-    if settings[15] == 1: list_names.sort()
     list_scores = []
     list_warnings = []
     error = False
