@@ -1,10 +1,10 @@
 # Learning program installer
 # Autor:   Quinten Taminiau
-# Date:    25-11-2025
-# Version: 3.1
+# Date:    11-01-2026
+# Version: 3.3
 # Python:  3.11
 
-version = '3.1'
+version = '3.3'
 
 # import modules
 import os

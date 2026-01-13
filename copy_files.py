@@ -25,7 +25,7 @@ from get_permissions import get_permissions
 # lib/manage_files.py       <path_to_users>            path_users
 # lib/main.py               <path_to_info>             path_info
 
-version = '3.1'
+version = '3.3'
 
 def cls():
     print('\x1b[2J\x1b[3J\x1b[H', end = '')
