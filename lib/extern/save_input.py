@@ -35,7 +35,7 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
         columns = 120
     if hide:
         input = '*' * len(input)
-    input = input.replace('\x89', '').replace('\x1b', '\\')
+    input = input.replace('\x1b', '^[')
     begin = False
     end = False
     while len(prompt + input) > (columns - 9):
@@ -143,7 +143,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                 if getch_start_stop:
                     getch_stop(fd)
                 return input, ch + c1
-            toegevoegd = True
+            added = True
             if os.name != 'nt':
                 if c1 == '[':
                     c2 = getch()
@@ -209,7 +209,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                     if c2 == 'P':
                         hide = not hide
                 else:
-                    toegevoegd = False
+                    added = False
 
             if os.name == 'nt':
                 if c1 == 'K':
@@ -240,17 +240,9 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                     if position_cursor > len(input):
                         position_cursor = len(input)
                 else:
-                    toegevoegd = False
+                    added = False
 
-            if not toegevoegd:
-                karakters1 = '\x01\x02\x05\x06\x07\x0b\x0c\x0e\x10\x14\x15\x16\x17\x18\x1e\x1f'
-                karakters2 = ['^A', '^B', '^E', '^F', '^G', '^K', '^L', '^N', '^P', '^T', '^U', '^V', '^W', '^X', '^^', '^_']
-                for i in range(len(karakters1)):
-                    if c1 == karakters1[i]:
-                        c1 = karakters2[i]
-
-                if c1 == '\x1b' or c1 == '\x00':
-                    c1 = ''
+            if not added:
                 if insert and os.name == 'nt':
                     input = input[:position_cursor] + 'à' + c1 + input[position_cursor + len('à' + c1):]
                 elif os.name == 'nt':
@@ -296,30 +288,19 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
             return input
 
         else:
-            karakters1 = '\x01\x02\x05\x06\x07\x0b\x0c\x0e\x10\x14\x15\x16\x17\x18\x1e\x1f'
-            karakters2 = ['^A', '^B', '^E', '^F', '^G', '^K', '^L', '^N', '^P', '^T', '^U', '^V', '^W', '^X', '^^', '^_']
-            for i in range(len(karakters1)):
-                if ch == karakters1[i]:
-                    ch = karakters2[i]
-
-            if ch == '\x1b' or ch == '\x00':
-                ch = '^['
-
             if insert:
                 input = input[:position_cursor] + ch + input[position_cursor + len(ch):]
             else:
                 input = input[:position_cursor] + ch + input[position_cursor:]
             position_cursor = position_cursor + len(ch)
 
-        input = input.replace('\x1b', '^[') 
-
         if len(valid_characters) > 0:
             for input in input:
                 if input not in valid_characters:
                     input.replace(input, '')
 
-        for ongeldige_karakter in invalid_characters:
-            input = input.replace(ongeldige_karakter, '')
+        for invalid_character in invalid_characters:
+            input = input.replace(invalid_character, '')
 
         print_input(prompt, input, position_cursor, insert, hide)
 
