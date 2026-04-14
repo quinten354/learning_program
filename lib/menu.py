@@ -413,6 +413,7 @@ def main_menu(username, userinfo):
             #list_names = []
 
             # show all
+            ulines = 0
             show_selection = selection - start_number
             show_selected = []
             for item in selected:
@@ -437,6 +438,7 @@ def main_menu(username, userinfo):
                     break
                 s_out(string)
                 avail_lines = avail_lines - (string.count('\n') + 1)
+                ulines = ulines + 1
 
             for i in range(avail_lines):
                 s_out(' ' * columns)
@@ -445,7 +447,7 @@ def main_menu(username, userinfo):
             if count > 0:
                 s_out('_' * columns)
                 s_out(' ' * columns)
-                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available    Selected: ' + str(selection)
+                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available    Selected: ' + str(selection) + '    Lines: ' + str(lines) + '    Start number: ' + str(start_number) + '    Ulines: ' + str(ulines)
                 s_out(search_info + (' ' * (columns - len(search_info))))
                 s_out(' ' * columns)
                 #lines = lines - 4
@@ -828,10 +830,12 @@ def main_menu(username, userinfo):
             if selection >= len(list_names):
                 selection = 0
 
-            while selection < (start_number + (lines / 2)) and start_number > 0:
+            #while selection < (start_number + (lines / 2)) and start_number > 0:
+            while selection < (start_number + 4) and start_number > 0:
                 start_number = start_number - 1
 
-            while selection > (start_number + (lines / 2)) and start_number <= max_start_number:
+            #while selection > (start_number + (lines / 2)) and start_number <= max_start_number:
+            while selection > (start_number + (ulines - 5)) and start_number <= max_start_number:
                 start_number = start_number + 1
 
             # do actions with selection or selected items
