@@ -1,30 +1,40 @@
 # import modules
-from .getch import getch_ as getch, start as getch_start, stop as getch_stop
+from .getchar import getch_ as getch, start as getch_start, stop as getch_stop
 from .save_output import save_output as s_out
 import os
 import inspect
 
 # get the special characters
-file = open(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/basic_files/combinations', mode = 'br')
+file = open(os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/basic_files/shortcuts', mode = 'br')
 data = file.read()
 file.close()
 
-lijst = data.split(b'\n')
-while len(lijst) > 0:
-    if lijst[len(lijst) - 1] in [b'', b' ']:
-        del lijst[len(lijst) - 1]
-    else:
-        break
+data = data.split(b'\r\n')
+char_shortcuts_string = data[0]
+text_shortcuts_string = data[1]
+del data
 
-combinaties = []
-for lijstitem in lijst:
-    combinaties.append(eval(lijstitem))
+char_shortcuts = char_shortcuts_string.split(b'\n')
+del char_shortcuts_string
+while b'' in char_shortcuts:
+    char_shortcuts.remove(b'')
+for item in char_shortcuts:
+    if b'\x00' not in item:
+        char_shortcuts.remove(item)
 
-standaard_combi_karakter = combinaties[0]
-combinaties = combinaties[1:]
-combinaties_upper = eval(str(combinaties).upper())
-for combi in combinaties_upper:
-    combinaties.append(combi)
+text_shortcuts = text_shortcuts_string.split(b'\n')
+del text_shortcuts_string
+while b'' in text_shortcuts:
+    text_shortcuts.remove(b'')
+for item in text_shortcuts:
+    if b'\x00' not in item:
+        text_shortcuts.remove(item)
+
+for i in range(len(char_shortcuts)):
+    char_shortcuts[i] = char_shortcuts[i].decode()
+
+for i in range(len(text_shortcuts)):
+    text_shortcuts[i] = text_shortcuts[i].decode()
 
 # set functions
 # show user input
@@ -35,10 +45,9 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
         columns = 120
     if hide:
         input = '*' * len(input)
-    input = input.replace('\x1b', '^[')
     begin = False
     end = False
-    while len(prompt + input) > (columns - 9):
+    while len(prompt + input) > (columns - 6):
         if position_cursor > (len(input) / 2):
             input = input[1:]
             position_cursor = position_cursor - 1
@@ -48,7 +57,7 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
             end = True
 
     txt = '\r' + prompt + ('«' if begin else '') + input + ('»' if end else '')
-    txt = txt + (' ' * ((columns - 3) - len(txt)) + ('I' if insert else ' ') + ('V' if hide else ' ') + ' ')
+    txt = txt + (' ' * ((columns - 2) - len(txt)) + ('I' if insert else ' ') + ('V' if hide else ' ') + ' ')
     try:
         s_out(txt, end = '')
     except UnicodeEncodeError:
@@ -67,44 +76,19 @@ def print_input(prompt, input, position_cursor, insert = False, hide = False):
             except UnicodeEncodeError:
                 s_out('\x1b[1;49;31mX\x1b[0m', end = '')
 
-def combi(combi_karakter):
-    karakters = []
-    while True:
-        ch = getch()
-        if ch in combi_karakter:
-            return combi_karakter * 2
-        elif ch == '\x1b':
-            return combi_karakter
-        elif ch == '\x7f':
-            if len(karakters) == 0:
-                return ''
-            else:
-                karakters = karakters[:-1]
-        elif ch == '\x08':
-            return ''
-        elif ch == '\n':
-            return '\n'
+def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], hide = False, getch_start_stop = True, max_length = 0, mode = None):
+    if mode == 'path' or mode == 'file' or mode == 'dir':
+        if os.name == 'nt':
+            invalid_characters = invalid_characters + ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+            max_length = 255
         else:
-            karakters.append(ch)
+            invalid_characters = invalid_characters + ['\\', '/']
 
-        if len(karakters) > 0:
-            for combinatie in combinaties:
-                toevoegen = True
-                for karakter in combinatie[0]:
-                    if karakter not in karakters:
-                        toevoegen = False
-                if toevoegen:
-                    return combinatie[1]
-
-        if len(karakters) > 2:
-            return ''
-
-def save_input(prompt = '', valid_characters = [], invalid_characters = [], input = '', enter_characters = [], combi_karakter = standaard_combi_karakter, hide = False, getch_start_stop = True):
-    lijst_stringen = prompt.split('\n')
-    if len(lijst_stringen) > 1:
-        for regel in lijst_stringen[:-1]:
+    strings = prompt.split('\n')
+    if len(strings) > 1:
+        for regel in strings[:-1]:
             s_out(regel + '\n', end = '')
-        prompt = lijst_stringen[-1]
+        prompt = strings[-1]
 
     try:
         columns = os.get_terminal_size().columns
@@ -119,10 +103,9 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
 
     print_input(prompt, input, position_cursor, insert, hide)
 
-    fd = getch_start()
+    getch_start()
 
     while True:
-        niet_toevoegen = False
         ch = getch()
 
         if ch in invalid_characters:
@@ -131,17 +114,14 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
 
         if ch in enter_characters:
             if getch_start_stop:
-                getch_stop(fd)
+                getch_stop()
             return input, ch
-
-        if ch in combi_karakter:
-            ch = combi(ch)
 
         if ch == '\x1b' or ch == '\x00':
             c1 = getch()
             if (ch + c1) in enter_characters:
                 if getch_start_stop:
-                    getch_stop(fd)
+                    getch_stop()
                 return input, ch + c1
             added = True
             if os.name != 'nt':
@@ -149,7 +129,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                     c2 = getch()
                     if (ch + c1 + c2) in enter_characters:
                         if getch_start_stop:
-                            getch_stop(fd)
+                            getch_stop()
                         return input, ch + c1 + c2
                     if c2 == 'D':
                         position_cursor = position_cursor - 1
@@ -163,7 +143,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                         c3 = getch()
                         if (ch + c1 + c2 + c3) in enter_characters:
                             if getch_start_stop:
-                                getch_stop(fd)
+                                getch_stop()
                             return input, ch + c1 + c2 + c3
                         if position_cursor < len(input):
                             input = input[:position_cursor] + input[position_cursor + 1:]
@@ -171,7 +151,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                         c3 = getch()
                         if (ch + c1 + c2 + c3) in enter_characters:
                             if getch_start_stop:
-                                getch_stop(fd)
+                                getch_stop()
                             return input, ch + c1 + c2 + c3
                         insert = not insert
                     elif c2 == 'H' or c2 == 'A':
@@ -182,7 +162,7 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                         c3 = getch()
                         if (ch + c1 + c2 + c3) in enter_characters:
                             if getch_start_stop:
-                                getch_stop(fd)
+                                getch_stop()
                             return input, ch + c1 + c2 + c3
                         if c3 == ';':
                             c4 = getch()
@@ -272,8 +252,12 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
             input = ''
             position_cursor = 0
         elif ch == '\x04':
+            if getch_start_stop:
+                getch_stop()
             raise EOFError
         elif ch == '\x03':
+            if getch_start_stop:
+                getch_stop()
             raise KeyboardInterrupt
         elif ch == '\x12':
             if len(prompt) > 0:
@@ -281,13 +265,17 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
                 prompt = prompt[columns:]
 
         elif ch == '\n':
-            if os.name == 'nt':
-                s_out('\n', end = '')
+            s_out()
             if getch_start_stop:
-                getch_stop(fd)
+                getch_stop()
             return input
 
         else:
+            for item in char_shortcuts:
+                a = item.split('\x00')
+                if a[0] == ch:
+                    ch = a[1]
+                    break
             if insert:
                 input = input[:position_cursor] + ch + input[position_cursor + len(ch):]
             else:
@@ -302,8 +290,14 @@ def save_input(prompt = '', valid_characters = [], invalid_characters = [], inpu
         for invalid_character in invalid_characters:
             input = input.replace(invalid_character, '')
 
+        for item in text_shortcuts:
+            a = item.split('\x00')
+            input.replace(a[0], a[1])
+
+        if max_length:
+            input = input[:max_length]
         print_input(prompt, input, position_cursor, insert, hide)
 
     if getch_start_stop:
-        getch_stop(fd)
+        getch_stop()
 
