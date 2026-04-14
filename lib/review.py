@@ -263,9 +263,9 @@ def save_reviewsession(list_words, difficult_words, type, times_wrong, times_goo
     try:
         while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
             if filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
-                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', input = filename, invalid_characters = ['/', '\\'])
+                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', input = filename, mode = 'file')
             else:
-                filename = s_inp('Choose the name to save this session.   > ', invalid_characters = ['/', '\\'])
+                filename = s_inp('Choose the name to save this session.   > ', mode = 'file')
 
         # create file
         create_file(username, 'saved_sessions/' + filename)
@@ -286,11 +286,11 @@ def save_reviewsession(list_words, difficult_words, type, times_wrong, times_goo
 def save_as_new_list(output, username, settings, filename = ''):
     # ask name
     create = True
-    if filename == '': filename = s_inp('What will be the new name?   > ')
+    if filename == '': filename = s_inp('What will be the new name?   > ', mode = 'file')
     while filename == '' or filename in os.listdir(ch_path('~/' + username + '/items')):
         try:
             s_out('This name already exist. Choose another name.')
-            filename = s_inp('What will be the new name?   > ', input = filename)
+            filename = s_inp('What will be the new name?   > ', input = filename, mode = 'file')
         except KeyboardInterrupt:
             create = False
             break
@@ -312,11 +312,11 @@ def save_as_new_list(output, username, settings, filename = ''):
 def save_and_learn(output, username, settings, filename = ''):
     # vragen wat de naam van de lijst met moeilijke woorden wordt
     create = True
-    if filename == '': filename = s_inp('What will be the new name?   > ')
+    if filename == '': filename = s_inp('What will be the new name?   > ', mode = 'file')
     while filename == '' or filename in os.listdir(ch_path('~/' + username + '/items')):
         try:
             s_out('This name already exist. Choose another name.')
-            filename = s_inp('What will be the new name?   > ', input = filename)
+            filename = s_inp('What will be the new name?   > ', input = filename, mode = 'file')
         except KeyboardInterrupt:
             create = False
             break
@@ -349,11 +349,11 @@ def rereview(output, username, settings):
 def save_and_review(output, username, settings, filename = ''):
     # vragen wat de naam van de lijst met moeilijke woorden wordt
     create = True
-    if filename == '': filename = s_inp('What will be the new name?   > ')
+    if filename == '': filename = s_inp('What will be the new name?   > ', mode = 'file')
     while filename == '' or filename in os.listdir(ch_path('~/' + username + '/items')):
         try:
             s_out('This name already exist. Choose another name.')
-            filename = s_inp('What will be the new name?   > ', input = filename)
+            filename = s_inp('What will be the new name?   > ', input = filename, mode = 'file')
         except KeyboardInterrupt:
             create = False
             break
@@ -415,9 +415,9 @@ def show_saved_sessions(username, settings):
                         new_name = old_name
                         while new_name == '' or new_name in os.listdir(ch_path('~/saved_sessions/')):
                             if new_name in os.listdir(ch_path('~/saved_sessions/')) and new_name != old_name:
-                                new_name = s_inp('This name already exist. Choose another name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+                                new_name = s_inp('This name already exist. Choose another name.   > ', input = new_name, mode = 'file')
                                 continue
-                            new_name = s_inp('Type the new name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+                            new_name = s_inp('Type the new name.   > ', input = new_name, mode = 'file')
 
                         # rename
                         if new_name != old_name:
@@ -449,9 +449,9 @@ def show_saved_sessions(username, settings):
                         new_name = old_name
                         while new_name == '' or new_name in os.listdir(ch_path('~/saved_sessions/')):
                             if new_name in os.listdir(ch_path('~/saved_sessions/')) and new_name != old_name:
-                                new_name = s_inp('This name already exist. Choose another name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+                                new_name = s_inp('This name already exist. Choose another name.   > ', input = new_name, mode = 'file')
                                 continue
-                            new_name = s_inp('Type the new name.   > ', input = new_name, invalid_characters = ['/', '\\'])
+                            new_name = s_inp('Type the new name.   > ', input = new_name, mode = 'file')
 
                         # copy
                         if new_name != old_name:
@@ -577,7 +577,7 @@ def show_saved_sessions(username, settings):
         # delete all
         if choice == 'a':
             # ask permision
-            if s_inp('Are you sure to delete all? It can\'t be undone. (yes/no)   > ') == 'yes':
+            if s_inp('Are you sure to delete all? It can\'t be undone. (y/n)   > ') == 'y':
                 delete_all(username, 'saved_sessions/')
                 
         # back

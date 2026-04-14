@@ -10,7 +10,7 @@ from extern.save_input import save_input as s_inp
 from file_browser import browser
 from errors import log_error
 
-version = '3.3'
+version = '4.0'
 
 # update the program
 def update(path_info):
@@ -64,19 +64,19 @@ def update(path_info):
 
     sys.path.append(installer_dir)
 
-    try:
-        import copy_files
-    except:
-        print('Can\'t update. No file \'copy_files.py\' in installer.')
-        input('Press enter to close the program. ')
-        return
+    #try:
+    import copy_files
+    #except Exception as error:
+        #s_out('Can\'t update: ' + str(error))
+        #s_inp('Press enter to close the program. ')
+        #return
 
-    try:
-        copy_files.main(path_lib, path_log, path_users, path_setup, path_info)
-    except:
-        print('Can\'t update. No attribute \'main\' in copy_files.py in installer.')
-        input('Press enter to close the program. ')
-        return
+    #try:
+    copy_files.main(path_lib, path_log, path_users, path_setup, path_info)
+    #except:
+        #s_out('Can\'t update: ' + str(error))
+        #s_inp('Press enter to close the program. ')
+        #return
 
     
     
@@ -96,7 +96,7 @@ def update(path_info):
         log_error()
         s_out('Error: Can\'t create info file.')
         s_out(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         return
     
     
@@ -109,5 +109,5 @@ def update(path_info):
     
     s_out('Your learning program has been updated!')
     s_out('Execute ' + path_setup + ' to run the program.')
-    input('Press enter to close the updater. ')
+    s_inp('Press enter to close the updater. ')
 

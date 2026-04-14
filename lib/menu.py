@@ -5,10 +5,10 @@ import datetime
 from time import sleep as wait, time
 
 from extern.save_input import save_input as s_inp
-from extern.getch import getch
+from extern.getchar import getch
 from extern.save_output import save_output as s_out, cls
 
-from manage_files import get_list, overwrite, ch_path, delete_file, create_file, create_list, move, copy
+from manage_files import get_list, overwrite, ch_path, delete_file, create_file, create_list, move, copy, delete
 from review import review, proceed_session, show_saved_sessions
 from manage_items import change_list, add_list, item_options, split_list, get_item_information, show_trash
 from go_through import go_through
@@ -16,10 +16,43 @@ from learn import learn, review_and_learn, learn_all
 from functions import is_warned, ch_size, ch_time, get_scores, get_procent, synchronize, select, lower, no_punctuation_marks, no_accents, sort
 from errors import WordIndexError, log_error
 from file_browser import browser
+from users import logout
+from update import update
 
 # set functions
+def help():
+    cls()
+    s_out('Quit --> q')
+    s_out('Synchronise --> y')
+    s_out('Settings --> s')
+    s_out('Add --> a')
+    s_out('Show/hide hided items --> H')
+    s_out('Show this help menu --> h')
+    s_out('Backup menu --> b')
+    s_out('Show userinfo --> u')
+    s_out('Logout --> o')
+    s_out('Delete user --> D')
+    s_out('Update --> U')
+    s_out('Change username --> C')
+    s_out('Hide/show items --> e')
+    s_out('Trash --> t')
+    s_out('View saved sessions --> S')
+    s_out('Continue saved session --> c')
+    s_out('Import item --> i')
+    s_out('Redraw menu --> r')
+    s_out('Search --> /')
+    s_out('Search and show only agreements --> ?')
+    s_out('Move selection up --> k or arrow up')
+    s_out('Move selection down --> j or arrow down')
+    s_out('Do actions with selected item --> enter')
+    s_out('Select multiple items --> tab')
+    s_out()
+    s_out('When not all items fit on the screen, use \'e\' to hide unused items to clean up the screen.')
+    s_out()
+    s_inp('Press enter to continue. ')
+    
 # learn menu
-def learn_menu(username):
+def main_menu(username, userinfo):
     # get settings
     settings = get_list(username, 'settings')
     # synchronize when the user it wants
@@ -31,8 +64,10 @@ def learn_menu(username):
     txt_search = ''
     show_agreements = False
     errors = []
+    refresh = False
 
     while True:
+        cls()
         # get the names of all files in items
         list_names = os.listdir(ch_path('~/' + username + '/items'))
         number_items = len(list_names)
@@ -51,12 +86,11 @@ def learn_menu(username):
         item_settings = get_list(username, 'item_settings')
         # get the number of columns
         columns = os.get_terminal_size().columns
+        lines = os.get_terminal_size().lines
+        lines = lines - 5
 
         # width_screen is the number of columns for the name of the item that will be showed
         width_screen = columns
-
-        # item number
-        width_screen = width_screen - 6
 
         # last modified
         if settings[24][0]:
@@ -126,7 +160,7 @@ def learn_menu(username):
         count = 0
         write_warnings = False
         for i in range(len(list_names)):
-            item_info = []
+            item_info = [list_names[i]]
             # set variables
             number_words = ''
             score = ''
@@ -214,7 +248,7 @@ def learn_menu(username):
                 max_length = width_screen - 6
                 name_item = list_names[i]
                 while len(name_item) >= max_length and max_length > 10:
-                    show_name_item = name_item[:max_length] + '      \x1b[1;49;37m|\x1b[0m\n  \x1b[1;49;37m\\\x1b[0m   '
+                    show_name_item = name_item[:max_length] + '      \x1b[1;49;37m|\x1b[0m' + (' ' * 64) + '\n'
                     name_item = name_item[max_length:]
                     printable_item_name = printable_item_name + select(show_name_item, txt_search)
                     #s_out(select(show_name_item, txt_search), end = '')
@@ -224,7 +258,8 @@ def learn_menu(username):
 
                 # complete line with spaces or lines
                 #s_out('\x1b[2;49;2m' + ((' ' if count % 6 != 2 else '-') * (width_screen - len(name_item))) + '\x1b[0m', end = '')
-                printable_item_name = printable_item_name + '\x1b[2;49;2m' + ((' ' if count % 6 != 2 else '-') * (width_screen - len(name_item))) + '\x1b[0m'
+                #printable_item_name = printable_item_name + '\x1b[2;49;2m' + ((' ' if count % 6 != 2 else '-') * (width_screen - len(name_item))) + '\x1b[0m'
+                item_info.append(len(name_item))
 
                 item_info.append(printable_item_name)
 
@@ -236,7 +271,7 @@ def learn_menu(username):
                 # show size
                 if settings[24][1]:
                     #s_out(select(ch_size(os.path.getsize(ch_path('~/' + username + '/items/' + list_names[i]))), txt_search).replace('K', '\x1b[1;49;33mK\x1b[0m').replace('M', '\x1b[1;49;33mM\x1b[0m').replace('G', '\x1b[1;49;33mG\x1b[0m').replace('T', '\x1b[1;49;33mT\x1b[0m') + ' ', end = '')
-                    item_info.append(select(ch_size(os.path.getsize(ch_path('~/' + username + '/items/' + list_names[i]))), txt_search).replace('K', '\x1b[1;49;33mK\x1b[0m').replace('M', '\x1b[1;49;33mM\x1b[0m').replace('G', '\x1b[1;49;33mG\x1b[0m').replace('T', '\x1b[1;49;33mT\     x1b[0m') + ' ')
+                    item_info.append(select(ch_size(os.path.getsize(ch_path('~/' + username + '/items/' + list_names[i]))), txt_search).replace('K', '\x1b[1;49;33mK\x1b[0m').replace('M', '\x1b[1;49;33mM\x1b[0m').replace('G', '\x1b[1;49;33mG\x1b[0m').replace('T', '\x1b[1;49;33mT\x1b[0m') + ' ')
 
                 # show number of words
                 if settings[24][2]:
@@ -296,11 +331,11 @@ def learn_menu(username):
                                 if (item_setting[1] - (curtime - item_setting[2])) > 0:
                                     #s_out(select(ch_time(item_setting[1] - (curtime - item_setting[2]))[0], txt_search), end = '')
                                     printable_text = printable_text + select(ch_time(item_setting[1] - (curtime - item_setting[2]))[0], txt_search)
-                                    #s_out(' ' * (6 - len(ch_time(curtime - item_setting[2])[0])), end = '')
-                                    printable_text = printable_text + ' ' * (6 - len(ch_time(curtime - item_setting[2])[0]))
+                                    #s_out(' ' * (9 - len(ch_time(curtime - item_setting[2])[0])), end = '')
+                                    printable_text = printable_text + ' ' * (9 - len(ch_time(curtime - item_setting[2])[0]))
                                 else:
                                     #s_out(select('\x1b[1;49;33mNow\x1b[0m   ', txt_search), end = '')
-                                    printable_text = printable_text + select('\x1b[1;49;33mNow\x1b[0m   ', txt_search)
+                                    printable_text = printable_text + select('\x1b[1;49;33mNow\x1b[0m      ', txt_search)
 
                                 #s_out(select(str(item_setting[3]) + str(item_setting[4]), txt_search), end = '')
                                 printable_text = printable_text + select(str(item_setting[3]) + str(item_setting[4]), txt_search)
@@ -316,7 +351,7 @@ def learn_menu(username):
                     except IndexError:
                         log_error()
                         #s_out('\x1b[1;49;31m' + select('ERROR!', txt_search) + '   \x1b[0m ', end = '')
-                        printable_text = printable_text + '\x1b[1;49;31m' + select('ERROR!', txt_search) + '   \x1b[0m '
+                        printable_text = printable_text + '\x1b[1;49;31m' + select('ERROR!   ', txt_search) + '   \x1b[0m '
 
                     item_info.append(printable_text)
                         
@@ -326,9 +361,8 @@ def learn_menu(username):
                     #s_out(select(score, txt_search))
                     item_info.append(select(score, txt_search))
 
-                else:
+                #else:
                     #s_out()
-                    pass
 
                 item_information.append(item_info)
                 count = count + 1
@@ -339,26 +373,6 @@ def learn_menu(username):
         if write_warnings:
             overwrite(username, warned_items, 'warned_items')
 
-        # clear screen
-        cls()
-
-        # show legend
-        if settings[26] and len(list_names) > 0:
-            s_out('Num   Name' + (' ' * (width_screen - 4)), end = '')
-            if settings[24][0]:
-                s_out('Last modified         ', end = '')
-            if settings[24][1]:
-                s_out('Size  ', end = '')
-            if settings[24][2]:
-                s_out('\x1b[DWords ', end = '')
-            if settings[24][3]:
-                s_out('W/E ', end = '')
-            if settings[24][4]:
-                s_out('Info      ', end = '')
-            if settings[24][5]:
-                s_out('Learn process     ', end = '')
-            s_out()
-
         # sort
         if settings[15] != -1:
             item_information = sort(item_information, settings[15])
@@ -366,355 +380,725 @@ def learn_menu(username):
         if settings[28]:
             item_information.reverse()
 
-        # show all
-        for number in range(len(item_information)):
-            s_out(select(str(number + 1) + ': ', txt_search) + (' ' * (4 - len(str(number + 1)))), end = '')
-            for string in item_information[number]:
-                s_out(string, end = '')
+        if settings[26] and len(item_information) > 0:
+            lines = lines - 1
+
+        selection = 0
+        selected = []
+        start_number = 0
+        max_start_number = len(item_information) - lines
+
+        while True:
+            # move cursor to (0, 0)
+            s_out('\x1b[H', end = '')
+
+            # show legend
+            if settings[26] and len(item_information) > 0:
+                s_out('\rName' + (' ' * (width_screen - 4)), end = '')
+                if settings[24][0]:
+                    s_out('Last modified         ', end = '')
+                if settings[24][1]:
+                    s_out('Size  ', end = '')
+                if settings[24][2]:
+                    s_out('\x1b[DWords ', end = '')
+                if settings[24][3]:
+                    s_out('W/E ', end = '')
+                if settings[24][4]:
+                    s_out('Info      ', end = '')
+                if settings[24][5]:
+                    s_out('Learn process     ', end = '')
+
             s_out()
 
-        # show extra info
-        if count > 0:
-            s_out('_' * columns)
-            s_out()
-            s_out((str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available')
-            s_out()
-        
-        elif show_agreements:
-            s_out('There are none agreements with your search \'' + str(txt_search) + '\'.')
-            s_out()
+            #list_names = []
 
-        # show options
-        s_out('What do you want to do?')
-        s_out('Quit --> q')
-        s_out('Synchronize --> y')
-        s_out('Settings --> s')
-        s_out('Add --> a')
-        s_out('Delete --> d')
-        s_out('Change --> c')
-        s_out('Learn --> l')
-        s_out('Review --> r')
-        s_out('Go through --> t')
-        s_out('Advenched functions --> f')
-        s_out('Item options --> o')
-        s_out('Show hided items: ' + ('yes' if show_all else 'no') + ' --> h')
-        s_out('Search and show agreements --> ?')
-        s_out('Search --> /')
-
-        # ask input
-        try:
-            choice = s_inp('   > ')
-        except KeyboardInterrupt:
-            cls()
-            try:
-                if s_inp('Do you want to go back? (yes/no)   > ') == 'yes':
-                    return ''
-            except KeyboardInterrupt:
-                return ''
-
-            continue
-
-        if choice == '':
-            wait(0.1)
-            continue
-
-        # if the input isn't a option, ask again
-        options = ['q', 'y', 's', 'a', 'd', 'c', 'l', 'r', 't', 'f', 'o', 'h', '/', '?']
-        if choice not in options and choice[0] != '/' and choice[0] != '?':
-            cls()
-            s_out('\x1b[1;49;31mThat isn\'t a option!!!\x1b[0m')
-            wait(1.5)
-            continue
-
-        # back to home
-        if choice == 'q':
-            return ''
-
-        # synchronize
-        if choice == 'y':
-            s_out('Synchronizing.')
-            try:
-                synchronize(username, settings)
-            except KeyboardInterrupt:
-                continue
-
-        # change settings
-        if choice == 's':
-            ch_settings(username)
-            settings = get_list(username, 'settings')
-
-        # add item
-        if choice == 'a':
-            try:
-                add_list(username, settings)
-            except KeyboardInterrupt:
-                continue
-
-        # delete item
-        if choice == 'd':
-            # check number of items
-            if len(list_names) != 0:
-                # ask the number of the item
-                try:
-                    number = s_inp('Type the number you want to delete.   > ')
-                except KeyboardInterrupt:
-                    continue
-
-                # check the input is a number
-                if number.isdigit():
-                    # check the item exist
-                    if 0 < int(number) < (len(list_names) + 1):
-                        try:
-                            # move to trash
-                            move(username, 'items/' + list_names[int(number) - 1], 'trash/')
-                        except:
-                            log_error()
-                            cls()
-                            s_out('Can\'t move to trash.')
-                            # check the item already exist in trash
-                            if list_names[int(number) - 1] in os.listdir(ch_path('~/' + username + '/trash/')):
-                                # ask
-                                if s_inp('\'' + list_names[int(number) - 1] + '\' already exist in the trash. Do you want to replace it? (yes/no)   > ') == 'yes':
-                                    try:
-                                        # delete old item out trash
-                                        delete_file(username, 'trash/' + list_names[int(number) - 1])
-                                        # move item to trash
-                                        move(username, 'items/' + list_names[int(number) - 1], 'trash/')
-                                    except:
-                                        log_error()
-                                        s_out()
-                                        s_out('Can\'t replace.')
-                                        s_inp('Press enter to continue. ')
-
-                            else:
-                                s_inp('Press enter to continue. ')
-                    else:
-                        s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
-                        wait(1.5)
+            # show all
+            show_selection = selection - start_number
+            show_selected = []
+            for item in selected:
+                show_selected.append(item + start_number)
+            avail_lines = lines
+            for number in range(len(item_information[start_number:])):
+                item = item_information[start_number:][number].copy()
+                #s_out('\r' + (' ' * columns) + '\r', end = '')
+                if number == show_selection and number in show_selected:
+                    item[2] = '\x1b[7;49;36m' + str(item[2]) + '\x1b[0m\x1b[2;49;2m' + ((' ' if number % 6 != 2 else '-') * (width_screen - item[1])) + '\x1b[0m'
+                elif number in show_selected:
+                    item[2] = '\x1b[7;49;33m' + str(item[2]) + '\x1b[0m\x1b[2;49;2m' + ((' ' if number % 6 != 2 else '-') * (width_screen - item[1])) + '\x1b[0m'
+                elif number == show_selection:
+                    item[2] = '\x1b[7m' + str(item[2]) + '\x1b[0m\x1b[2;49;2m' + ((' ' if number % 6 != 2 else '-') * (width_screen - item[1])) + '\x1b[0m'
                 else:
-                    s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
-                    wait(1.5)
-            else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to delete.\x1b[0m')
-                wait(1.5)
+                    item[2] = str(item[2]) + '\x1b[2;49;2m' + ((' ' if number % 6 != 2 else '-') * (width_screen - item[1])) + '\x1b[0m'
+                #list_names.append(item[0])
+                string = ''
+                for number in range(len(item) - 2):
+                    string = string + item[number + 2]
+                if (string.count('\n') + 1) >= avail_lines:
+                    break
+                s_out(string)
+                avail_lines = avail_lines - (string.count('\n') + 1)
 
-        # change item
-        if choice == 'c':
-            # check number of items
-            if len(list_names) != 0:
-                # ask the number of the item
+            for i in range(avail_lines):
+                s_out(' ' * columns)
+
+            # show extra info
+            if count > 0:
+                s_out('_' * columns)
+                s_out(' ' * columns)
+                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available    Selected: ' + str(selection)
+                s_out(search_info + (' ' * (columns - len(search_info))))
+                s_out(' ' * columns)
+                #lines = lines - 4
+            
+            elif show_agreements:
+                s_out('_' * columns)
+                s_out(' ' * columns)
+                search_info = 'There are none agreements with your search \'' + str(txt_search) + '\'.'
+                s_out(search_info + (' ' * (columns - len(search_info))))
+                s_out(' ' * columns)
+                #lines = lines - 2
+
+            else:
+                s_out('_' * columns)
+                s_out(' ' * columns)
+                search_info = 'There are no items available. Press \'a\' to add one or \'i\' to import one.'
+                s_out(search_info + (' ' * (columns - len(search_info))))
+                s_out(' ' * columns)
+
+            # ask input
+            try:
+                prompt_message = 'Type a command or \'h\' to see the help menu.   > '
+                prompt_message = prompt_message + (' ' * (columns - len(prompt_message))) + '\r' + ('\x1b[C' * len(prompt_message))
+                s_out(prompt_message, end = '')
+                choice = getch()
+            except KeyboardInterrupt:
+                cls()
                 try:
-                    number = s_inp('Type the number you want to change.   > ')
+                    if s_inp('Do you want to quit? (y/n)   > ') == 'y':
+                        logout(username, userinfo)
+                        exit()
+                except KeyboardInterrupt:
+                    exit()
+
+                break
+
+            # if the input isn't a option, ask again
+            options = ['q', 'y', 's', 'a', 'H', 'h', 'b', 'u', 'o', 'D', 'U', 'C', 'e', 't', 'S', 'c', 'i', 'r', '\t', 'k', 'j', '/', '?', '\x1b', '\x00', '\n']
+            if choice not in options:
+                cls()
+                s_out('\x1b[1;49;31mThat isn\'t a option!!!\x1b[0m')
+                wait(1.5)
+                continue
+
+            # back to home
+            if choice == 'q':
+                logout(username, userinfo)
+                s_out()
+                exit()
+
+            # synchronize
+            if choice == 'y':
+                s_out('Synchronizing.')
+                try:
+                    synchronize(username, settings)
                 except KeyboardInterrupt:
                     continue
 
-                # check the input is a number
-                if number.isdigit():
-                    # check the item exist
-                    if 0 < int(number) <= len(list_names):
-                        try:
-                            change_list(username, list_names[int(number) - 1], settings)
-                        except KeyboardInterrupt:
-                            cls()
-                            s_out('Back to home.')
+                break
+
+            # change settings
+            if choice == 's':
+                ch_settings(username)
+                settings = get_list(username, 'settings')
+                break
+
+            # add item
+            if choice == 'a':
+                try:
+                    add_list(username, settings)
+                except KeyboardInterrupt:
+                    continue
+
+                break
+
+            # hide/show hided items
+            if choice == 'H':
+                show_all = not show_all
+                break
+
+            # show help menu
+            if choice == 'h':
+                help()
+
+            # backup menu
+            if choice == 'b':
+                backup_menu()
+                break
+
+            # show user information
+            if choice == 'u':
+                cls()
+                time_created = str(datetime.datetime.fromtimestamp(userinfo[0]))
+                time_created = time_created[:time_created.find('.')]
+                s_out('     Time created: ' + str(time_created))
+                time_changed = str(datetime.datetime.fromtimestamp(userinfo[1]))
+                time_changed = time_changed[:time_changed.find('.')]
+                s_out('Last time learned: ' + str(time_changed))
+                s_out('     Time learned: ' + ch_time(userinfo[2] + (time() - userinfo[3]))[0])
+                s_out()
+                s_inp('Press enter to continue. ')
+
+            # logout
+            if choice == 'o':
+                return 'logout'
+
+            # delete user
+            if choice == 'D':
+                try:
+                    if s_inp('Are you sure to delete your account? It can\'t be undone. (y/n)   >  ') == 'y':
+                        delete(name)
+                        return 'logout'
+                except KeyboardInterrupt:
+                    continue
+
+            # update
+            if choice == 'U':
+                logout(username, userinfo)
+                update(<path_to_info>)
+                exit()
+
+            # change username
+            if choice == 'C':
+                cls()
+                s_out('Current username: ' + username)
+                new_name = s_inp('Type the new username.   > ', input = username, mode = 'file')
+                shutil.move(ch_path('~/' + username), ch_path('~/' + new_name))
+                username = new_name
+                break
+
+            # hide/show items
+            if choice == 'e':
+                # get hided items
+                hided_items = get_list(username, 'hided_items', True)
+                while True:
+                    # show options
+                    cls()
+                    s_out('Hide item(s) --> h')
+                    s_out('Unhide item(s) --> u')
+                    s_out('Quit (save) --> s')
+                    s_out('Quit (not save) --> q')
+                    choice = s_inp('What do you want to do?   > ')
+
+                    # check user input
+                    options = ['h', 'u', 's', 'q']
+                    if choice not in options:
+                        cls()
+                        s_out('\x1b[1;49;31mThat isn\'t a option!\x1b[0m')
+                        wait(1.5)
+                        continue
+
+                    # hide item(s)
+                    if choice == 'h':
+                        txt_search = ''
+                        while True:
+                            # sort
+                            if settings[15]: list_names.sort()
+                            try:
+                                # show showed items
+                                cls()
+                                for i in range(len(list_names)):
+                                    s_out(str(i + 1) + (' ' * (4 - len(str(i + 1)))) + list_names[i].replace(txt_search, '\x1b[7m' + txt_search + '\x1b[0m'))
+                                s_out()
+
+                                # ask user input
+                                number = s_inp('Type a number to hide, q to quit or / to search.   > ')
+
+                                # quit
+                                if number == 'q':
+                                    break
+
+                                # check input is a number
+                                elif number.isdigit():
+                                    if 0 < int(number) < (len(list_names) + 1):
+                                        # hide item
+                                        hided_items.append(list_names[selection])
+                                        del list_names[selection]
+                                    else:
+                                        cls()
+                                        s_out('\x1b[1;49;31mThat\'s not a available number!!!\x1b[0m')
+                                        wait(1.5)
+
+                                # hide a range of numbers
+                                elif '.' in number:
+                                    numbers = number.split('.')
+                                    if numbers[0].isdigit() and numbers[1].isdigit():
+                                        for i in range((int(numbers[1]) - int(numbers[0])) + 1):
+                                            if 0 < int(numbers[0]) < (len(list_names) + 1):
+                                                # hide
+                                                hided_items.append(list_names[int(numbers[0]) - 1])
+                                                del list_names[int(numbers[0]) - 1]
+
+                                            else:
+                                                cls()
+                                                s_out('ERROR')
+                                                wait(1.5)
+                                    else:
+                                        cls()
+                                        s_out('Your numbers aren\'t available numbers.')
+                                        wait(1.5)
+
+                                # search
+                                elif len(number) > 0:
+                                    if number == '/':
+                                        txt_search = s_inp('Search   > ')
+                                    if number[0] == '/':
+                                        txt_search = number[1:]
+
+                                else:
+                                    cls()
+                                    s_out('\x1b[1;49;31mYour input isn\'t a number, / or q!!!\x1b[0m')
+                                    wait(1.5)
+
+                            except KeyboardInterrupt:
+                                break
+
+                    # show item(s)
+                    if choice == 'u':
+                        txt_search = ''
+                        while True:
+                            # sort
+                            if settings[15]: hided_items.sort()
+                            try:
+                                # show hided items
+                                cls()
+                                for i in range(len(hided_items)):
+                                    s_out(str(i + 1) + (' ' * (4 - len(str(i + 1)))) + hided_items[i].replace(txt_search, '\x1b[7m' + txt_search + '\x1b[0m'))
+                                s_out()
+
+                                # ask user input
+                                number = s_inp('Type a number to hide, ctrl + c to quit or / to search.   > ')
+                    
+                                # quit
+                                if number == 'q':
+                                    break
+
+                                # check input is a number
+                                elif number.isdigit():
+                                    if 0 < int(number) <= len(hided_items):
+                                        # show
+                                        list_names.append(hided_items[selection])
+                                        del hided_items[selection]
+
+                                    else:
+                                        cls()
+                                        s_out('\x1b[1;49;31mNot a valid number!\x1b[0m')
+                                        wait(1.5)
+
+                                # show a range of items
+                                elif '.' in number:
+                                    numbers = number.split('.')
+                                    if numbers[0].isdigit() and numbers[1].isdigit():
+                                        for i in range((int(numbers[1]) - int(numbers[0])) + 1):
+                                            if 0 < int(numbers[0]) <= len(hided_items):
+                                                # show
+                                                list_names.append(hided_items[int(numbers[0]) - 1])
+                                                del hided_items[int(numbers[0]) - 1]
+
+                                            else:
+                                                cls()
+                                                s_out('ERROR')
+                                                wait(1.5)
+                                    else:
+                                        cls()
+                                        s_out('Your numbers aren\'t available numbers.')
+                                        wait(1.5)
+
+                                # zoeken
+                                elif len(number) > 0:
+                                    if number == '/':
+                                        txt_search = s_inp('Search   > ')
+                                    if number[0] == '/':
+                                        txt_search = number[1:]
+
+                                else:
+                                    cls()
+                                    s_out('\x1b[1;49;31mYour input isn\'t a number, / or q!!!\x1b[0m')
+                                    wait(1.5)
+
+                            except KeyboardInterrupt:
+                                break
+
+                    # quit
+                    if choice == 'q':
+                        break
+
+                    # save and quit
+                    if choice == 's':
+                        overwrite(username, hided_items, 'hided_items')
+                        cls()
+                        s_out('Successful saved!!!')
+                        wait(1.5)
+                        break
+                break
+
+            # go to trash
+            if choice == 't':
+                show_trash(username)
+                break
+
+            # view saved sessions
+            if choice == 'S':
+                show_saved_sessions(username, settings)
+                break
+
+            # continue saved session
+            if choice == 'c':
+                proceed_session(username, settings)
+                break
+            
+            # import item
+            if choice == 'i':
+                # import
+                location = browser(mode = 'open', type = 'f', message = 'Select a file to import')
+                try:
+                    shutil.copy(location, ch_path('~/' + username + '/items/'))
+                except:
+                    log_error()
+                    s_out('Something went wrong.')
+                    wait(1.5)
+                else:
+                    s_out('Your item is imported!')
+
+                break
+      
+            # redraw menu
+            if choice == 'r':
+                break
+
+            # select multiple items
+            if choice == '\t':
+                if selection in selected:
+                    selected.remove(selection)
+                else:
+                    selected.append(selection)
+
+            # search
+            if choice == '/':
+                # search
+                try:
+                    txt_search = s_inp('Search   > ')
+                except KeyboardInterrupt:
+                    continue
+
+                show_agreements = False
+
+            # search and show only agreements
+            if choice == '?':
+                # search
+                try:
+                    txt_search = s_inp('Search   > ')
+                except KeyboardInterrupt:
+                    continue
+
+                show_agreements = True
+
+            # move selection up
+            if choice == 'k':
+                selection = selection - 1
+
+            # move selection down
+            if choice == 'j':
+                selection = selection + 1
+
+            if choice == '\x1b' or choice == '\x00':
+                # TODO make it working on windows systems
+                c1 = getch()
+                if c1 == '[':
+                    c2 = getch()
+                    # arrow up: move selection up
+                    if c2 == 'A':
+                        selection = selection - 1
+                    # arrow down: move selection down
+                    elif c2 == 'B':
+                        selection = selection + 1
+
+            # when the selection goes out of the screen, place it on the other site back
+            if selection < 0:
+                selection = len(list_names) - 1
+            if selection >= len(list_names):
+                selection = 0
+
+            while selection < (start_number + (lines / 2)) and start_number > 0:
+                start_number = start_number - 1
+
+            while selection > (start_number + (lines / 2)) and start_number <= max_start_number:
+                start_number = start_number + 1
+
+            # do actions with selection or selected items
+            if choice == '\n':
+                try:
+                    if len(list_names) == 0:
+                        continue
+
+                    if len(selected) == 0:
+                        item_error = selection in errors
+                        
+                        cls()
+                        if item_error:
+                            s_out('There occured an error...')
                             wait(1.5)
                             continue
 
-                    else:
-                        s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
-                        wait(1.5)
-                else:
-                    s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
-                    wait(1.5)
-            else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to delete.\x1b[0m')
-                wait(1.5)
+                        s_out('Delete --> d')
+                        s_out('Change --> c')
+                        s_out('Learn --> l')
+                        s_out('Item options --> o')
+                        s_out('Item information --> i')
+                        s_out('Split item --> s')
+                        s_out('Export --> e')
+                        s_out('Learn all words in 1 session --> L')
+                        s_out('Review and save all good answered words as learned --> r')
+                        s_out('Back to home --> b/q')
+                        s_out('\rChoice to do   > ', end = '')
+                        choice = getch()
 
-        # learn item
-        if choice == 'l':
-            # check number of items
-            if len(list_names) != 0:
-                # ask the number of the item
-                try:
-                    number = s_inp('Type the number you want to learn.   > ')
-                except KeyboardInterrupt:
-                    continue
+                        options = ['d', 'c', 'l', 'o', 'i', 's', 'e', 'L', 'r', 'b', 'q']
 
-                # check the input is a number
-                if number.isdigit():
-                    # check the item exist
-                    if 0 < int(number) <= len(list_names):
-                        if (int(number) - 1) not in errors:
+                        if choice not in options:
+                            cls()
+                            s_out('That isn\'t a option!')
+                            wait(1.5)
+                            continue
+
+                        # delete item
+                        if choice == 'd':
                             try:
-                                learn(username, list_names[int(number) - 1], settings)
+                                # move to trash
+                                move(username, 'items/' + list_names[selection], 'trash/')
+                            except:
+                                log_error()
+                                cls()
+                                s_out('Can\'t move to trash.')
+                                # check the item already exist in trash
+                                if list_names[selection] in os.listdir(ch_path('~/' + username + '/trash/')):
+                                    # ask
+                                    if s_inp('\'' + list_names[selection] + '\' already exist in the trash. Do you want to replace it? (y/n)   > ') == 'y':
+                                        try:
+                                            # delete old item out trash
+                                            delete_file(username, 'trash/' + list_names[selection])
+                                            # move item to trash
+                                            move(username, 'items/' + list_names[selection], 'trash/')
+                                        except:
+                                            log_error()
+                                            s_out()
+                                            s_out('Can\'t replace.')
+                                            s_inp('Press enter to continue. ')
+
+                                else:
+                                    s_inp('Press enter to continue. ')
+
+                        # change item
+                        if choice == 'c':
+                            try:
+                                change_list(username, list_names[selection], settings)
                             except KeyboardInterrupt:
                                 cls()
                                 s_out('Back to home.')
                                 wait(1.5)
                                 continue
 
-                        else:
-                            s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
-                            wait(1.5)
-                    else:
-                        s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
-                        wait(1.5)
-                else:
-                    s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
-                    wait(1.5)
-            else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to learn.\x1b[0m')
-                wait(1.5)
+                        # learn item
+                        if choice == 'l':
+                            try:
+                                learn(username, list_names[selection], settings)
+                            except KeyboardInterrupt:
+                                cls()
+                                s_out('Back to home.')
+                                wait(1.5)
+                                continue
 
-        # review item(s)
-        if choice == 'r' or choice == 't':
-            # check number of items
-            if len(list_names) != 0:
-                list_selected_words = []
-                quit = False
-                while True:
-                    try:
-                        number = s_inp('Type the number of a item to add, c to cancel or d if you\'re done.   > ')
-                    except KeyboardInterrupt:
-                        quit = True
-                        break
-
-                    # done and review
-                    if number == 'd':
-                        break
-
-                    # quit
-                    if number == 'c':
-                        quit = True
-                        break
-
-                    # check the input is a number
-                    elif number.isdigit():
-                        # check the item exist
-                        if 0 < int(number) <= (len(list_names)):
-                            if (int(number) - 1) not in errors:
-                                for word in get_list(username, 'items/' + list_names[int(number) - 1]):
-                                    list_selected_words.append(word)
-                            else:
-                                s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
-                        else:
-                            s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
-
-                    elif '.' in number:
-                        numbers = number.split('.')
-                        # check the numbers are numbers
-                        if numbers[0].isdigit() and numbers[1].isdigit():
-                            for number in range(int(numbers[0]), int(numbers[1]) + 1):
-                                if 0 < int(number) <= len(list_names):
-                                    if (int(number) - 1) not in errors:
-                                        for word in get_list(username, 'items/' + list_names[number - 1]):
-                                            list_selected_words.append(word)
-
-                                    else:
-                                        s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
-                                else:
-                                    s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
-                        else:
-                            s_out('\x1b[1;49;31mThat can\'t. None numbers.\x1b[0m')
-                    else:
-                        s_out('\x1b[1;49;31mThat can\'t. None number, c or d.\x1b[0m')
-
-                if quit:
-                    continue
-
-                # check the user selected words
-                if len(list_selected_words) > 0:
-                    for i in range(len(list_selected_words)):
-                        list_selected_words[i][2], list_selected_words[i][3], list_selected_words[i][4], list_selected_words[i][5] = 0, 0, 0, 0
-                    try:
+                        if choice == 'o':
+                            try:
+                                item_options(username, list_names[selection], settings)
+                            except KeyboardInterrupt:
+                                cls()
+                                s_out('Back to home.')
+                                wait(1.5)
+                                continue
+                        
+                        if choice == 'i':
+                            get_item_information(username, list_names[selection], settings)
+                        
                         if choice == 'r':
-                            review(list_selected_words, username, settings)
-                        if choice == 't':
-                            go_through(list_selected_words, username, settings)
+                            review_and_learn(username, list_names[selection], settings)
+                        
+                        if choice == 's':
+                            split_list(username, list_names[selection], settings)
 
-                    except KeyboardInterrupt:
+                        if choice == 'e':
+                            location = browser(filename = list_names[selection], mode = 'create', type = 'f', message = 'Select a file to export')
+                            try:
+                                shutil.copy(ch_path('~/' + username + '/items/' + list_names[selection]), location)
+                            except:
+                                log_error()
+                                s_out('Something went wrong.')
+                                wait(1.5)
+                            else:
+                                s_out('Your item is exported!')
+
+                        if choice == 'L':
+                            learn_all(username, list_names[selection], settings)
+
+                        break
+
+                    else:
+                        item_error = False
+                        for item in selected:
+                            if item in errors:
+                                item_error = True
+                        
                         cls()
-                        s_out('Back to home.')
-                        wait(1.5)
-                        continue
-
-                else:
-                    s_out('\x1b[1;49;31mYou haven\'t selected words.\x1b[0m')
-                    wait(1.5)
-            else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to select.\x1b[0m')
-                wait(1.5)
-
-        if choice == 'f':
-            # geanvanceerde functies
-            try:
-                advenched(list_names, username, settings, errors)
-            except KeyboardInterrupt:
-                cls()
-                s_out('Back to home.')
-                wait(1.5)
-                continue
-
-        if choice == 'o':
-            # check number of items
-            if len(list_names) != 0:
-                # ask the number of the item
-                try:
-                    number = s_inp('Type the number you want to change item options.   > ')
-                except KeyboardInterrupt:
-                    continue
-
-                # check the input is a number
-                if number.isdigit():
-                    # check the item exist
-                    if 0 < int(number) <= len(list_names):
-                        try:
-                            item_options(username, list_names[int(number) - 1], settings)
-                        except KeyboardInterrupt:
-                            cls()
-                            s_out('Back to home.')
+                        if item_error:
+                            s_out('There occured an error...')
                             wait(1.5)
                             continue
 
-                    else:
-                        s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
-                        wait(1.5)
-                else:
-                    s_out('\x1b[1;49;31mThat can\'t. None number.\x1b[0m')
-                    wait(1.5)
-            else:
-                s_out('\x1b[1;49;31mThat can\'t. There is nothing to change item options.\x1b[0m')
-                wait(1.5)
+                        options = ['r', 't', 'c', 'q', 'b']
 
-        if choice == 'h':
-            show_all = not show_all
+                        s_out('Review --> r')
+                        s_out('Go through --> t')
+                        s_out('Combine items --> c')
+                        s_out('Back --> q/b')
+                        s_out('\rChoice   > ', end = '')
+                        choice = getch()
 
-        if choice[0] == '/':
-            # zoeken
-            if choice == '/':
-                try:
-                    txt_search = s_inp('Search   > ')
+                        # combine items to a new item
+                        if choice == 'c':
+                            listname = s_inp('What will be the name of the new item?   > ', mode = 'file')
+                            while listname == '' or listname in os.listdir(ch_path('~/' + username + '/items')):
+                                if listname in os.listdir(ch_path('~/' + username + '/items')):
+                                    s_out('This item already exist. Press ctrl + c to cancel.')
+                                listname = s_inp('What will be the name of the new item?   > ', mode = 'file')
+
+                            del_process = ''
+                            options = ['y', 'n']
+                            while del_process not in options:
+                                if del_process != '':
+                                    s_out('That isn\'t a option!')
+                                del_process = s_inp('Do you want to remove your process? (y/n)   > ')
+
+                            list_selected_words = []
+
+                            for item in selected:
+                                list_selected_words = list_selected_words + get_list(username, 'items/' + list_names[item])
+
+                            if del_process == 'y':
+                                for number in range(len(list_selected_words)):
+                                    list_selected_words[number][2], list_selected_words[number][3], list_selected_words[number][4], list_selected_words[number][5] = 0, 0, 0, 0
+
+                            overwrite(username, list_selected_words, 'items/' + listname)
+
+                            list_scores = get_list(username, 'list_items')
+                            for i in range(len(list_scores)):
+                                if list_scores[i][0] == listname:
+                                    list_scores[i][1] = len(list_selected_words)
+                                    list_scores[i][2] = get_procent(*get_scores(list_selected_words, settings))
+                            overwrite(username, list_scores, 'list_items')
+
+                        # review item(s) or go through item(s)
+                        if choice == 'r' or choice == 't':
+                            list_selected_words = []
+                            for item in selected:
+                                list_selected_words = list_selected_words + get_list(username, 'items/' + list_names[item])
+
+                            for number in range(len(list_words)):
+                                list_selected_words[number][2], list_selected_words[number][3], list_selected_words[number][4], list_selected_words[number][5] = 0, 0, 0, 0
+
+                            if choice == 'r':
+                                review(list_selected_words, username, settings)
+                            if choice == 't':
+                                go_through(list_selected_words, username, settings)
+
+                                '''
+                                list_selected_words = []
+                                quit = False
+                                while True:
+                                    try:
+                                        number = s_inp('Type the number of a item to add, c to cancel or d if you\'re done.   > ')
+                                    except KeyboardInterrupt:
+                                        quit = True
+                                        break
+
+                                    # done and review
+                                    if number == 'd':
+                                        break
+
+                                    # quit
+                                    if number == 'c':
+                                        quit = True
+                                        break
+
+                                    # check the input is a number
+                                    elif number.isdigit():
+                                        # check the item exist
+                                        if 0 < int(number) <= (len(list_names)):
+                                            if (selection) not in errors:
+                                                for word in get_list(username, 'items/' + list_names[selection]):
+                                                    list_selected_words.append(word)
+                                            else:
+                                                s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
+                                        else:
+                                            s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
+
+                                    elif '.' in number:
+                                        numbers = number.split('.')
+                                        # check the numbers are numbers
+                                        if numbers[0].isdigit() and numbers[1].isdigit():
+                                            for number in range(int(numbers[0]), int(numbers[1]) + 1):
+                                                if 0 < int(number) <= len(list_names):
+                                                    if (selection) not in errors:
+                                                        for word in get_list(username, 'items/' + list_names[number - 1]):
+                                                            list_selected_words.append(word)
+
+                                                    else:
+                                                        s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
+                                                else:
+                                                    s_out('\x1b[1;49;31mThat can\'t. No available number.\x1b[0m')
+                                        else:
+                                            s_out('\x1b[1;49;31mThat can\'t. None numbers.\x1b[0m')
+                                    else:
+                                        s_out('\x1b[1;49;31mThat can\'t. None number, c or d.\x1b[0m')
+
+                                if quit:
+                                    continue
+
+                                # check the user selected words
+                                if len(list_selected_words) > 0:
+                                    for i in range(len(list_selected_words)):
+                                        list_selected_words[i][2], list_selected_words[i][3], list_selected_words[i][4], list_selected_words[i][5] = 0, 0, 0, 0
+                                    try:
+                                        if choice == 'r':
+                                            review(list_selected_words, username, settings)
+                                        if choice == 't':
+                                            go_through(list_selected_words, username, settings)
+
+                                    except KeyboardInterrupt:
+                                        cls()
+                                        s_out('Back to home.')
+                                        wait(1.5)
+                                        continue
+
+                                else:
+                                    s_out('\x1b[1;49;31mYou haven\'t selected words.\x1b[0m')
+                                    wait(1.5)
+                                '''
+
+                        break
+
                 except KeyboardInterrupt:
-                    continue
+                    break
 
-            else:
-                txt_search = choice[1:]
-
-            show_agreements = False
-
-        if choice[0] == '?':
-            # zoeken
-            if choice == '?':
-                try:
-                    txt_search = s_inp('Search   > ')
-                except KeyboardInterrupt:
-                    continue
-
-            else:
-                txt_search = choice[1:]
-
-            show_agreements = True
-
+'''
 # advenched functions
 def advenched(list_names, username, settings, errors):
     # set options
@@ -753,8 +1137,8 @@ def advenched(list_names, username, settings, errors):
             if number.isdigit():
                 # check the item exist
                 if 0 < int(number) <= len(list_names):
-                    if (int(number) - 1) not in errors:
-                        get_item_information(username, list_names[int(number) - 1], settings)
+                    if (selection) not in errors:
+                        get_item_information(username, list_names[selection], settings)
                     else:
                         s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
                         wait(1.5)
@@ -786,8 +1170,8 @@ def advenched(list_names, username, settings, errors):
             if number.isdigit():
                 # check the item exist
                 if 0 < int(number) < (len(list_names) + 1):
-                    if (int(number) - 1) not in errors:
-                        review_and_learn(username, list_names[int(number) - 1], settings)
+                    if (selection) not in errors:
+                        review_and_learn(username, list_names[selection], settings)
                     else:
                         s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
                         wait(1.5)
@@ -850,8 +1234,8 @@ def advenched(list_names, username, settings, errors):
                         elif number.isdigit():
                             if 0 < int(number) < (len(list_names) + 1):
                                 # hide item
-                                hided_items.append(list_names[int(number) - 1])
-                                del list_names[int(number) - 1]
+                                hided_items.append(list_names[selection])
+                                del list_names[selection]
                             else:
                                 cls()
                                 s_out('\x1b[1;49;31mThat\'s not a available number!!!\x1b[0m')
@@ -915,8 +1299,8 @@ def advenched(list_names, username, settings, errors):
                         elif number.isdigit():
                             if 0 < int(number) <= len(hided_items):
                                 # show
-                                list_names.append(hided_items[int(number) - 1])
-                                del hided_items[int(number) - 1]
+                                list_names.append(hided_items[selection])
+                                del hided_items[selection]
 
                             else:
                                 cls()
@@ -982,11 +1366,11 @@ def advenched(list_names, username, settings, errors):
 
                 # new item
                 if choice2 == 'n':
-                    listname = s_inp('What will be the name of the new item?   > ', invalid_characters = ['/', '\\'])
+                    listname = s_inp('What will be the name of the new item?   > ', mode = 'file')
                     while listname == '' or listname in os.listdir(ch_path('~/' + username + '/items')):
                         if listname in os.listdir(ch_path('~/' + username + '/items')):
                             s_out('This item already exist. Press ctrl + c to cancel.')
-                        listname = s_inp('What will be the name of the new item?   > ', invalid_characters = ['/', '\\'])
+                        listname = s_inp('What will be the name of the new item?   > ', mode = 'file')
 
                     # create file
                     create_file(username, 'items/' + listname)
@@ -996,7 +1380,7 @@ def advenched(list_names, username, settings, errors):
                     number = s_inp('Type the number of the item   > ')
                     if number.isdigit():
                         if 0 < int(number) <= len(list_names):
-                            listname = list_names[int(number) - 1]
+                            listname = list_names[selection]
                         else:
                             s_out('Your input isn\'t a available number.')
                             wait(1.5)
@@ -1030,9 +1414,9 @@ def advenched(list_names, username, settings, errors):
                 elif number.isdigit():
                     # check the item exist
                     if 0 < int(number) < (len(list_names) + 1):
-                        if (int(number) - 1) not in errors:
+                        if (selection) not in errors:
                             # add
-                            for word in get_list(username, 'items/' + list_names[int(number) - 1]):
+                            for word in get_list(username, 'items/' + list_names[selection]):
                                 list_selected_words.append(word)
                         else:
                             s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
@@ -1044,7 +1428,7 @@ def advenched(list_names, username, settings, errors):
                     if numbers[0].isdigit() and numbers[1].isdigit():
                         for number in range(int(numbers[0]), int(numbers[1]) + 1):
                             if 0 < number < (len(list_names) + 1):
-                                if (int(number) - 1) not in errors:
+                                if (selection) not in errors:
                                     # add
                                     for word in get_list(username, 'items/' + list_names[number - 1]):
                                         list_selected_words.append(word)
@@ -1089,9 +1473,9 @@ def advenched(list_names, username, settings, errors):
             if number.isdigit():
                 # check item exist
                 if 0 < int(number) <= len(list_names):
-                    if (int(number) - 1) not in errors:
+                    if (selection) not in errors:
                         # split item
-                        split_list(username, list_names[int(number) - 1], settings)
+                        split_list(username, list_names[selection], settings)
                     else:
                         s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
                         wait(1.5)
@@ -1111,9 +1495,9 @@ def advenched(list_names, username, settings, errors):
             number = s_inp('Type the number to export   > ')
             if number.isdigit():
                 if 0 < int(number) <= len(list_names):
-                    location = browser(filename = list_names[int(number) - 1], mode = 'create', type = 'f', message = 'Select a file to export')
+                    location = browser(filename = list_names[selection], mode = 'create', type = 'f', message = 'Select a file to export')
                     try:
-                        shutil.copy(ch_path('~/' + username + '/items/' + list_names[int(number) - 1]), location)
+                        shutil.copy(ch_path('~/' + username + '/items/' + list_names[selection]), location)
                     except:
                         log_error()
                         s_out('Something went wrong.')
@@ -1153,9 +1537,9 @@ def advenched(list_names, username, settings, errors):
             if number.isdigit():
                 # check item exist
                 if 0 < int(number) <= len(list_names):
-                    if (int(number) - 1) not in errors:
+                    if (selection) not in errors:
                         # learn item
-                        learn_all(username, list_names[int(number) - 1], settings)
+                        learn_all(username, list_names[selection], settings)
                     else:
                         s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
                         wait(1.5)
@@ -1168,6 +1552,7 @@ def advenched(list_names, username, settings, errors):
         else:
             s_out('\x1b[1;49;31mThat can\'t. There is nothing to learn.\x1b[0m')
             wait(1.5)
+'''
 
 # change settings
 def ch_settings(username):
@@ -1877,7 +2262,7 @@ def ch_settings(username):
 
         except KeyboardInterrupt:
             cls()
-            choice = s_inp('Do you want to save? (yes/no/Cancel)   > ')
+            choice = s_inp('Do you want to save? (y/n/cancel) [cancel]   > ')
             if choice == 'yes':
                 # check learn method
                 for i in 0, 1, 2, 3:
@@ -1894,4 +2279,181 @@ def ch_settings(username):
             # home
             elif choice == 'no':
                 return ''
+
+'''
+
+def main():
+    name, userinfo = login()
+    try:
+        main_menu(name, userinfo)
+    except SystemExit:
+        exit()
+    except Exception as error:
+        log_error()
+        s_out('Something went wrong.')
+    logout(username, userinfo)
+
+    while True:
+        cls()
+        # list with options
+        options = ['l', 'h', 'u', 'c', 'b', 's', 'q', 'd', 'o', 'U']
+
+        # show options
+        s_out('What do you want to do?')
+        s_out('Learn --> l')
+        s_out('Help menu --> h')
+        s_out('See userinfo --> u')
+        s_out('Change username --> c')
+        s_out('Backup menu --> b')
+        s_out('Quit --> s/q')
+        s_out('Delete userenvironment --> d')
+        s_out('Log out --> o')
+        s_out('Update --> U')
+
+        # ask user to do something
+        try:
+            choice = s_inp('   > ')
+    
+            if choice not in options:
+                # if the input isn't correctly, ask again
+                cls()
+                s_out('\x1b[1;49;31mThat isn\'t a option!!!\x1b[0m')
+                wait(1)
+                continue
+    
+            if choice == 'l':
+                # learn
+                learn_menu(name)
+                
+            if choice == 'h':
+                # help menu
+                help()
+    
+            if choice == 'u':
+                cls()
+                time_created = str(datetime.datetime.fromtimestamp(userinfo[0]))
+                time_created = time_created[:time_created.find('.')]
+                s_out('     Time created: ' + str(time_created))
+                time_changed = str(datetime.datetime.fromtimestamp(userinfo[1]))
+                time_changed = time_changed[:time_changed.find('.')]
+                s_out('Last time learned: ' + str(time_changed))
+                s_out('     Time learned: ' + ch_time(userinfo[2] + (time() - userinfo[3]))[0])
+                s_out()
+                s_inp('Press enter to continue. ')
+
+            if choice == 'c':
+                cls()
+                s_out('Current username: ' + name)
+                new_name = s_inp('Type the new username.   > ', input = name, mode = 'file')
+                shutil.move(ch_path('~/' + name), ch_path('~/' + new_name))
+                name = new_name
+
+            if choice == 'b':
+                try:
+                    backup_menu(name)
+                except KeyboardInterrupt:
+                    continue
+    
+            if choice == 's' or choice == 'q':
+                logout(username, userinfo)
+                exit()
+    
+            if choice == 'd':
+                try:
+                    if s_inp('Are you sure to delete your account? It can\'t be undone. (y/n)   >  ') == 'y':
+                        delete(name)
+                        login()
+                except KeyboardInterrupt:
+                    continue
+
+            if choice == 'o':
+                logout(username, userinfo)
+                login()
+
+            if choice == 'U':
+                logout(username, userinfo)
+                update(<path_to_info>)
+                exit()
+
+        except (KeyboardInterrupt, ClosedTerminalError, ProcessKilledError):
+            s_out()
+            exit()
+
+'''
+
+def backup_menu(username):
+    while True:
+        cls()
+        backups = os.listdir(ch_path('~/' + username + '/backups/'))
+        options = ['c', 'i', 'q']
+        # show options
+        s_out('What do you want to do?')
+        s_out('Create backup --> c')
+        if len(backups) > 0:
+            s_out('Restore from backup --> r')
+            options.append('r')
+            s_out('Delete backup --> d')
+            options.append('d')
+            s_out('Delete all backups --> D')
+            options.append('D')
+            s_out('Export backup --> e')
+            options.append('e')
+        s_out('Import backup --> i')
+        s_out('Quit --> q')
+    
+        # ask user
+        choice = s_inp('   > ')
+
+        if choice not in options:
+            cls()
+            s_out('That isn\'t a option!!!')
+            wait(1.5)
+            continue
+
+        if choice == 'c':
+            create_backup(username)
+            s_out('Succesvol created!')
+            wait(1.5)
+
+        if choice == 'r':
+            filename = user_choice_items(backups)
+            restore_backup(username, filename)
+            s_inp('Backup restored! Press enter to continue. ')
+
+        if choice == 'd':
+            filename = user_choice_items(backups)
+            remove_backup(username, filename)
+
+        if choice == 'D':
+            remove_all_backups(username)
+
+        if choice == 'e':
+            filename = user_choice_items(backups)
+            print('Select a directory to export the backup.')
+            s_inp('Press enter to do it! ')
+            location = browser(filename = filename, mode = 'create', type = 'f', message = 'Export to a file')
+            try:
+                shutil.copy(ch_path('~/' + username + '/backups/' + filename), os.path.expanduser('~') if len(location) == 0 else location)
+            except Exception as error:
+                log_error()
+                print('Error by exporting: ')
+                print(error)
+                s_inp('Press enter to continue. ')
+                continue
+
+        if choice == 'i':
+            print('Select a file to import.')
+            s_inp('Press enter to do it! ')
+            location = browser(mode = 'open', type = 'f', message = 'Import backup file')
+            try:
+                shutil.copy(location, ch_path('~/' + username + '/backups/'))
+            except Exception as error:
+                log_error()
+                print('Error by importing: ')
+                print(error)
+                s_inp('Press enter to continue. ')
+                continue
+
+        if choice == 'q':
+            return ''
 

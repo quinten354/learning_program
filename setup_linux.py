@@ -2,7 +2,7 @@
 
 import subprocess
 import signal
-from getch import getch
+from getchar import getch
 from save_input import save_input as sinp
 import os
 import inspect
@@ -44,6 +44,14 @@ try:
                     print(error)
                     input('Press enter to continue. ')
         elif ch == 'q':
+            print()
+            exit()
+
+        elif ch == '\x03':
+            print()
+            exit()
+
+        elif ch == '\x04':
             print()
             exit()
 

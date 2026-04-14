@@ -8,42 +8,42 @@ from errors import WordIndexError
 from functions import get_scores
 from manage_files import create_list
 
-def solve(pad_bestand):
+def solve(path_file):
     try:
-        file = open(pad_bestand)
+        file = open(path_file)
         data = file.read()
         file.close()
     except UnicodeDecodeError:
-        solve_decodeerror(pad_bestand)
+        solve_decodeerror(path_file)
     except:
         s_out('Unknown error.')
         wait(1.5)
     else:
         try:
-            lijst = create_list(data)
+            created_list = create_list(data)
         except ValueError:
-            solve_valueerror(pad_bestand)
+            solve_valueerror(path_file)
         except:
             s_out('Unknown error.')
             wait(1.5)
         else:
             try:
-                scores = get_scores(lijst)
+                scores = get_scores(created_list)
             except WordIndexError:
-                solve_wordindexerror(pad_bestand)
+                solve_wordindexerror(path_file)
             else:
                 s_out('Nothing wrong. Going back.')
                 wait(1.5)
 
-def solve_decodeerror(pad_bestand):
-    file = open(pad_bestand, 'br')
+def solve_decodeerror(path_file):
+    file = open(path_file, 'br')
     data = file.read()
     file.close()
 
     while True:
         try:
             nieuwe_data = data.decode()
-            file = open(pad_bestand, mode = 'w')
+            file = open(path_file, mode = 'w')
             file.write(nieuwe_data)
             file.close()
             s_inp('A error is solved.   > ')
@@ -57,7 +57,7 @@ def solve_decodeerror(pad_bestand):
             return ''
             
         else:
-            file = open(pad_bestand, mode = 'bw')
+            file = open(path_file, mode = 'bw')
             file.write(data)
             file.close()
             s_inp('A error is solved.   > ')
@@ -67,19 +67,19 @@ def solve_decodeerror(pad_bestand):
         s_out(eval('b\'\\x' + foute_karakter + '\''), b'\\' + foute_karakter.encode())
         data = data.replace(eval('b\'\\x' + foute_karakter + '\''), b'\\' + foute_karakter.encode())
 
-def solve_valueerror(pad_bestand):
-    file = open(pad_bestand)
+def solve_valueerror(path_file):
+    file = open(path_file)
     data = file.read()
     file.close()
 
     while True:
-        lijst_data = data.split('\n')
-        for regel in lijst_data:
+        list_data = data.split('\n')
+        for line in list_data:
             try:
-                create_list(regel)
+                create_list(line)
             except ValueError:
-                s_out('This line can\'t be readed by the computer: ' + regel)
-                data = data.replace(regel, s_inp('Type what it must be.   > ', input = regel))
+                s_out('This line can\'t be readed by the computer: ' + line)
+                data = data.replace(line, s_inp('Type what it must be.   > ', input = line))
         try:
             create_list(data)
         except ValueError:
@@ -87,24 +87,24 @@ def solve_valueerror(pad_bestand):
         else:
             break
 
-    file = open(pad_bestand, mode = 'w')
+    file = open(path_file, mode = 'w')
     file.write(data)
     file.close()
     
-def solve_wordindexerror(pad_bestand):
-    file = open(pad_bestand)
+def solve_wordindexerror(path_file):
+    file = open(path_file)
     data = file.read()
     file.close()
 
     while True:
         gedaan = False
-        lijst_data = data.split('\n')
-        for regel in lijst_data:
+        list_data = data.split('\n')
+        for line in list_data:
             try:
-                if regel != '': get_scores([regel])
+                if line != '': get_scores([line])
             except WordIndexError:
-                s_out('This line can\'t be processed by the computer. The word index is invalid. [str, str, int, int, int, int]: ' + regel)
-                data = data.replace(regel, s_inp('Type what it must be.   > ', input = regel))
+                s_out('This line can\'t be processed by the computer. The word index is invalid. [str, str, int, int, int, int]: ' + line)
+                data = data.replace(line, s_inp('Type what it must be.   > ', input = line))
                 gedaan = True
         try:
             get_scores(data)
@@ -116,7 +116,7 @@ def solve_wordindexerror(pad_bestand):
         if not gedaan:
             break
 
-    file = open(pad_bestand, mode = 'w')
+    file = open(path_file, mode = 'w')
     file.write(data)
     file.close()
 

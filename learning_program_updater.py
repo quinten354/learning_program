@@ -1,10 +1,10 @@
 # learning program updater
 # Autor:   Quinten Taminiau
-# Date:    11-01-2026
-# Version: 3.3
-# Python:  3.11
+# Date:    14-04-2026
+# Version: 4.0
+# Develop: Python 3.13 Linux
 
-version = '3.3'
+version = '4.0'
 
 # import modules
 import os
@@ -15,10 +15,6 @@ import sys
 import datetime
 from time import sleep as wait, time
 import copy_files
-
-installer_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-sys.path.append(installer_dir + '/lib')
-from file_browser import browser
 
 # path_installer            var_installer              path_linux                           path_windows
 # lib                       path_lib                   /usr/local/lib/learning_program/     ~\AppData\local\learning_program\
@@ -37,9 +33,6 @@ from file_browser import browser
 # lib/database.py           <path_to_users>            path_users
 # lib/main.py               <path_to_info>             path_info
 
-def cls():
-    print('\x1b[2J\x1b[3J\x1b[H', end = '')
-
 logging.basicConfig(filename = 'install.log', level = logging.ERROR)
 
 def log():
@@ -50,19 +43,28 @@ quote = '\''
 slash = '\\' if os.name == 'nt' else '/'
 home = 'os.path.expanduser(\'~\') + '
 homedir = os.path.expanduser('~')
+installer_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+sys.path.insert(0, installer_dir + slash + 'lib' + slash)
+sys.path.insert(0, installer_dir + slash + 'lib' + slash + 'extern' + slash)
+from file_browser import browser
+from save_input import save_input as s_inp
+from save_output import save_output as s_out, cls
 
 # ask user for info file
-print('Open the info file that is created by installing the program.')
-input('Press enter to continue. ')
+s_out('Open the info file that is created by installing the program.')
+s_inp('Press enter to continue. ')
 
 while True:
     try:
         path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
         break
     except Exception as error:
+        if type(error) == KeyboardInterrupt:
+            exit()
         log()
-        print(error)
-        input('Press enter to try again. ')
+        s_out(error)
+        s_inp('Press enter to try again. ')
         continue
 
 cls()
@@ -74,8 +76,8 @@ try:
     file.close()
 
     if path_info != info['path_info']:
-        print('Warning: \'' + path_info + '\' is not the same as \'' + info['path_info'] + '\'.')
-        input('Press enter to continue. ')
+        s_out('Warning: \'' + path_info + '\' is not the same as \'' + info['path_info'] + '\'.')
+        s_inp('Press enter to continue. ')
 
     path_setup = info['path_setup']
     path_lib   = info['path_lib']
@@ -84,9 +86,10 @@ try:
 
 except Exception as error:
     log()
-    print('Error: Can\'t get info from the info file.')
-    print(error)
-    input('Press enter to close the program. ')
+    s_out('Error: Can\'t get info from the info file.')
+    s_out(error)
+    s_inp('Press enter to close the program. ')
+    s_out()
     exit(1)
 
 copy_files.main(path_lib, path_log, path_users, path_setup, path_info)
@@ -107,9 +110,10 @@ try:
 
 except Exception as error:
     log()
-    print('Error: Can\'t create info file.')
-    print(error)
-    input('Press enter to close the program. ')
+    s_out('Error: Can\'t create info file.')
+    s_out(error)
+    s_inp('Press enter to close the program. ')
+    s_out()
     exit(1)
 
 
@@ -120,7 +124,8 @@ except Exception as error:
 
 cls()
 
-print('Your learning program has been updated!')
-print('Execute ' + path_setup + ' to run the program.')
-input('Press enter to close the updater. ')
+s_out('Your learning program has been updated!')
+s_out('Execute ' + path_setup + ' to run the program.')
+s_inp('Press enter to close the updater. ')
+s_out()
 

@@ -23,9 +23,9 @@ from get_permissions import get_permissions
 # lib/__init__.py           <path_to_log>              path_info
 # lib/errors.py             <path_to_log>              path_log
 # lib/manage_files.py       <path_to_users>            path_users
-# lib/main.py               <path_to_info>             path_info
+# lib/menu.py               <path_to_info>             path_info
 
-version = '3.3'
+version = '4.0'
 
 def cls():
     print('\x1b[2J\x1b[3J\x1b[H', end = '')
@@ -37,6 +37,12 @@ home = 'os.path.expanduser(\'~\') + '
 homedir = os.path.expanduser('~')
 installer_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
+path_extern_files = installer_dir + slash + 'lib' + slash + 'extern' + slash
+
+sys.path.append(path_extern_files)
+
+from save_input import save_input as s_inp
+
 logging.basicConfig(filename = installer_dir + '/install.log', level = logging.ERROR)
 
 def log():
@@ -47,9 +53,9 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
     if homedir in path_users or homedir in path_log:
         print('Do you want to change the home directory (' + homedir + ') into a program that set the home directory?')
         print('This is for the user-directory and the log directory.')
-        inp = input('If another user login, data will be saved in that home directory, not in yours. (yes/no)   > ')
+        inp = s_inp('If another user login, data will be saved in that home directory, not in yours. (yes/no)   > ')
         while inp not in ['yes', 'no']:
-            inp = input('If another user login, data will be saved in that home directory, not in yours. (yes/no)   > ')
+            inp = s_inp('If another user login, data will be saved in that home directory, not in yours. (yes/no)   > ')
 
         if inp == 'yes':
             if homedir in path_users:
@@ -103,7 +109,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
             for item in listdir:
                 print(path_lib + slash + item)
         
-            input()
+            s_inp()
         
             # delete all items in lib
             for item in listdir:
@@ -116,7 +122,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t remove files/dirs in \'' + path_lib + '\'.')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
     # copy files and dirs
@@ -136,7 +142,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t copy files/dirs from \'' + installer_dir + slash + 'lib' + '\'.')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
     # change var <path_to_users> in manage_files.py
@@ -153,7 +159,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t edit file manage_files.py (' + path_lib + slash + 'manage_files.py' + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
     # change var <path_to_log> in errors.py
@@ -170,7 +176,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t edit file errors.py (' + path_lib + slash + 'errors.py' + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
     # change var <path_to_log> and <path_to_info> in __init__.py
@@ -188,24 +194,24 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t edit file __init__.py (' + path_lib + slash + '__init__.py' + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
-    # change var <path_to_info> in main.py
+    # change var <path_to_info> in menu.py
 
     try:
-        file = open(path_lib + slash + 'main.py')
+        file = open(path_lib + slash + 'menu.py')
         data = file.read()
         file.close()
         data = data.replace('<path_to_info>', fpath_info)
-        file = open(path_lib + slash + 'main.py', mode = 'w')
+        file = open(path_lib + slash + 'menu.py', mode = 'w')
         file.write(data)
         file.close()
     except Exception as error:
         log()
-        print('Error: Can\'t edit file main.py (' + path_lib + slash + 'main.py' + ').')
+        print('Error: Can\'t edit file menu.py (' + path_lib + slash + 'menu.py' + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
 
@@ -222,7 +228,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t create learning_program (setup file) (' + path_setup + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
     if get_permissions(path_setup) != 7:
@@ -242,7 +248,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t copy learning_program (setup file) (' + installer_dir + slash + 'learning_program' + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
     try:
@@ -260,7 +266,7 @@ def main(path_lib, path_log, path_users, path_setup, path_info):
         log()
         print('Error: Can\'t edit file learning_program (setup file) (' + installer_dir + slash + 'learning_program' + ').')
         print(error)
-        input('Press enter to close the program. ')
+        s_inp('Press enter to close the program. ')
         exit(1)
 
 if __name__ == '__main__':

@@ -1,0 +1,234 @@
+ERROR:root:learning_program_installer.py - 2026-01-20 17:01:58.933037
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/file_browser.py", line 325, in browser
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-01-20 17:06:10.216924
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/file_browser.py", line 325, in browser
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-01-20 17:07:48.167337
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    s_inp('Press enter to continue. ')
+                        ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/file_browser.py", line 325, in browser
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-01-20 17:17:14.149992
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 368, in browser_
+    to_dir = path + sinp('Go to directory   > ', getch_start_stop = False)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 37, in browser
+    output = browser_(path, mode, type, filename, message, root, show_point_files)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-01-20 17:19:58.435328
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 350, in browser_
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 303, in browser_
+    out = browser_(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 309, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 37, in browser
+    output = browser_(path, mode, type, filename, message, root, show_point_files)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-01-20 17:21:48.033491
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 350, in browser_
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 371, in browser_
+    out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 37, in browser
+    output = browser_(path, mode, type, filename, message, root, show_point_files)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 377, in browser_
+    sinp('Press enter to continue. ')
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/extern/save_input.py", line 274, in save_input
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-01-20 17:26:48.820591
+Traceback (most recent call last):
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 37, in browser
+    output = browser_(path, mode, type, filename, message, root, show_point_files)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/quinten/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 362, in browser_
+    raise EOFError
+EOFError
+ERROR:root:learning_program_installer.py - 2026-03-28 12:45:42.354702
+Traceback (most recent call last):
+  File "/data/data/com.termux/files/home/coding/python/programs/used/learning_program/learning_program_installer/learning_program_updater.py", line 60, in <module>
+    path_info = browser(homedir, mode = 'open', type = 'f', message = 'Info file')
+  File "/data/data/com.termux/files/home/coding/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 37, in browser
+    output = browser_(path, mode, type, filename, message, root, show_point_files)
+  File "/data/data/com.termux/files/home/coding/python/programs/used/learning_program/learning_program_installer/lib/file_browser.py", line 331, in browser_
+    s_inp('Press enter to open ' + ('file' if isfile else 'directory') + ' \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: save_input() got an unexpected keyword argument 'getch_start_stop'

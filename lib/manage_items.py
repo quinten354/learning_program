@@ -254,12 +254,12 @@ def item_options(username, filename, settings):
 # add item
 def add_list(username, settings):
     # ask name of item
-    name_item = s_inp('Name your item.   > ', invalid_characters = ['/', '\\'])
+    name_item = s_inp('Name your item.   > ', mode = 'file')
     while name_item == '' or name_item in os.listdir(ch_path('~/' + username + '/items')):
         try:
             if name_item in os.listdir(ch_path('~/' + username + '/items')):
                 s_out('This name already exist. Press ctrl + c to overwrite.')
-            name_item = s_inp('Name your item.   > ', input = name_item)
+            name_item = s_inp('Name your item.   > ', input = name_item, mode = 'file')
         except KeyboardInterrupt:
             keuze = s_inp('Do you want to cancel or replace the name? (c/r)   > ')
             if keuze == 'r':
@@ -473,7 +473,7 @@ def change_list(username, filename, settings):
 
             # ask new name
             try:
-                new_name = s_inp('What will be the new name?   > ', input = filename, invalid_characters = ['/', '\\'])
+                new_name = s_inp('What will be the new name?   > ', input = filename, mode = 'file')
             except KeyboardInterrupt:
                 continue
 
@@ -482,7 +482,7 @@ def change_list(username, filename, settings):
                 try:
                     if new_name in os.listdir(ch_path('~/' + username + '/items')):
                         s_out('This name already exist. Choose another name.')
-                    new_name = s_inp('What will be the new name?   > ', input = new_name)
+                    new_name = s_inp('What will be the new name?   > ', input = new_name, mode = 'file')
                 except KeyboardInterrupt:
                     s_out()
                     keuze = s_inp('Do you want to cancel or overwrite? (c/o)   > ')
@@ -532,10 +532,10 @@ def change_list(username, filename, settings):
         # quit
         if choice == 's' or choice == 'q':
             if warning:
-                lijst_waarschuwingen = get_list(username, 'warned_items', True)
-                if filename not in lijst_waarschuwingen:
-                    lijst_waarschuwingen.append(bestandsusername)
-                overwrite(username, lijst_waarschuwingen, 'warned_items')
+                list_warnings = get_list(username, 'warned_items', True)
+                if filename not in list_warnings:
+                    list_warnings.append(filename)
+                overwrite(username, list_warnings, 'warned_items')
 
             return
 
@@ -648,10 +648,10 @@ def change_content(username, filename, settings, list_item = None):
             overwrite(username, list_scores, 'list_items')
 
             if is_warned(list_item):
-                lijst_waarschuwingen = get_list(username, 'warned_items', True)
-                if filename not in lijst_waarschuwingen:
-                    lijst_waarschuwingen.append(filename)
-                overwrite(username, lijst_waarschuwingen, 'warned_items')
+                list_warnings = get_list(username, 'warned_items', True)
+                if filename not in list_warnings:
+                    list_warnings.append(filename)
+                overwrite(username, list_warnings, 'warned_items')
 
             return list_item
 
@@ -902,13 +902,13 @@ def split_list(username, filename, settings):
                     a = 'nd'
                 else:
                     a = 'rd'
-                itemname = s_inp('Name your ' + str(number) + a + ' item   > ', invalid_characters = ['/', '\\'])
+                itemname = s_inp('Name your ' + str(number) + a + ' item   > ', mode = 'file')
             if choice == 'g' and number == 0:
-                itemname = s_inp('Name your item with known words   > ', invalid_characters = ['/', '\\'])
+                itemname = s_inp('Name your item with known words   > ', mode = 'file')
             if choice == 'g' and number == 1:
-                itemname = s_inp('Name your item with unknown words   > ', invalid_characters = ['/', '\\'])
+                itemname = s_inp('Name your item with unknown words   > ', mode = 'file')
             if choice == 'n':
-                itemname = s_inp('Name your item with unknown words   > ', invalid_characters = ['/', '\\'])
+                itemname = s_inp('Name your item with unknown words   > ', mode = 'file')
 
         # create file
         create_file(username, 'items/' + itemname)

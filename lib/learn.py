@@ -7,7 +7,6 @@ from extern.save_input import save_input as s_inp
 from extern.save_output import save_output as s_out, cls
 from extern.timeout import timeout
 
-#from manage_files import get_list, ch_path, overwrite, move, log_data, create_file
 from manage_files import get_list, ch_path, overwrite, move, create_file
 from manage_items import change_content
 from questions import type_ex, multiple_choise, sentence, retype, show_word
@@ -193,6 +192,7 @@ def learn(username, filename, settings):
                             pass
                         break
 
+        shuffle(chosen_words)
         output = learn_session(chosen_words, username, filename, settings, learn_info, not_often_had, difficult)
         if output == 'Quit':
             return ''
@@ -313,7 +313,7 @@ def learn_session(chosen_words, username, filename, settings, learn_info = None,
             
             # check words are difficult
             for difficult_word in difficult:
-                if (learn_info[0][difficult_word][4] * 4) <= learn_info[0][difficult_word][5]:
+                if (learn_info[0][difficult_word][4] * 4) <= learn_info[0][difficult_word][5] or learn_info[0][difficult_word][2] >= 3:
                     difficult.remove(difficult_word)
 
             # get scores
@@ -689,10 +689,10 @@ def save(username, filename_org, chosen_words, list_words, not_often_had, diffic
     try:
         while filename == '' or filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')) or count == 0:
             if filename in os.listdir(ch_path('~/' + username + '/saved_sessions/')):
-                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', input = filename, invalid_characters = ['/', '\\'])
+                filename = s_inp('This name already exist. Choose another name or press ctrl + c to overwrite.   > ', input = filename, mode = 'file')
                 continue
 
-            filename = s_inp('Choose the name to save this session.   > ', input = filename, invalid_characters = ['/', '\\'])
+            filename = s_inp('Choose the name to save this session.   > ', input = filename, mode = 'file')
 
             count = count + 1
 
@@ -772,7 +772,7 @@ def review_and_learn(username, filename, settings):
                 result = type_ex(list_review[number], settings, None, list_item)
             except KeyboardInterrupt:
                 cls()
-                if s_inp('Do you want to quit? (yes/no)   > ') == 'yes':
+                if s_inp('Do you want to quit? (y/n)   > ') == 'y':
                     s_out('Quiting.')
                     wait(1.5)
                     break

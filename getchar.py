@@ -2,8 +2,13 @@
 import os
 import sys
 
+if os.name != 'nt':
+    import termios
+
+default = termios.tcgetattr(sys.stdin)
+
 # get single character
-def getch(location = sys.stdin):
+def getch(echo = False):
     # windows
     if os.name == 'nt':
         # use msvcrt
@@ -27,20 +32,45 @@ def getch(location = sys.stdin):
 
     # other
     else:
-        # use termios
-        import termios
-
-        fd = location.fileno()
-        orig = termios.tcgetattr(fd)
-
+        fd = sys.stdin.fileno()
         new = termios.tcgetattr(fd)
         new[3] = new[3] & ~termios.ICANON
+        if not echo:
+            new[3] = new[3] & ~termios.ECHO
         new[6][termios.VMIN] = 1
         new[6][termios.VTIME] = 0
 
         try:
             termios.tcsetattr(fd, termios.TCSAFLUSH, new)
-            return location.read(1)
+            return sys.stdin.read(1)
         finally:
-            termios.tcsetattr(fd, termios.TCSAFLUSH, orig)
+            termios.tcsetattr(fd, termios.TCSAFLUSH, default)
+
+def start(echo = False):
+    if os.name == 'nt':
+        return
+
+    fd = sys.stdin.fileno()
+    orig = termios.tcgetattr(fd)
+
+    new = termios.tcgetattr(fd)
+    new[3] = new[3] & ~termios.ICANON
+    new[3] = new[3] & ~termios.ECHO
+    new[6][termios.VMIN] = 1
+    new[6][termios.VTIME] = 0
+
+    termios.tcsetattr(fd, termios.TCSAFLUSH, new)
+
+def getch_():
+    if os.name == 'nt':
+        return getch()
+
+    return sys.stdin.read(1)
+
+def stop():
+    if os.name == 'nt':
+        return
+
+    fd = sys.stdin.fileno()
+    termios.tcsetattr(fd, termios.TCSAFLUSH, default)
 
