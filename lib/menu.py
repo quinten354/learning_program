@@ -8,12 +8,12 @@ from extern.save_input import save_input as s_inp
 from extern.getchar import getch
 from extern.save_output import save_output as s_out, cls
 
-from manage_files import get_list, overwrite, ch_path, delete_file, create_file, create_list, move, copy, delete
+from manage_files import get_list, overwrite, ch_path, delete_file, create_file, create_list, move, copy, delete, create_backup, remove_backup, restore_backup, remove_all_backups
 from review import review, proceed_session, show_saved_sessions
 from manage_items import change_list, add_list, item_options, split_list, get_item_information, show_trash
 from go_through import go_through
 from learn import learn, review_and_learn, learn_all
-from functions import is_warned, ch_size, ch_time, get_scores, get_procent, synchronize, select, lower, no_punctuation_marks, no_accents, sort
+from functions import is_warned, ch_size, ch_time, get_scores, get_procent, synchronize, select, lower, no_punctuation_marks, no_accents, sort, user_choice_items
 from errors import WordIndexError, log_error
 from file_browser import browser
 from users import logout
@@ -532,7 +532,7 @@ def main_menu(username, userinfo):
 
             # backup menu
             if choice == 'b':
-                backup_menu()
+                backup_menu(username)
                 break
 
             # show user information
