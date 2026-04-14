@@ -2,11 +2,11 @@
 
 # Learning program
 # Autor:   Quinten Taminiau
-# Date:    11-01-2026
-# Version: 3.3
-# Python:  3.11
+# Date:    14-04-2026
+# Version: 4.0
+# Develop: Python 3.13 Linux
 
-version = '3.3'
+version = '4.0'
 
 import subprocess
 import sys
