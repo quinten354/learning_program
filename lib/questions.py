@@ -5,7 +5,7 @@ from time import sleep as wait
 
 from extern.save_input import save_input as s_inp
 from extern.save_output import save_output as s_out, cls
-from extern.getch import start as getch_start, stop as getch_stop
+from extern.getchar import start as getch_start, stop as getch_stop
 
 from functions import show_mistake, check_answer
 
@@ -47,7 +47,7 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
     check = False
     inp = ''
 
-    fd = getch_start()
+    getch_start()
 
     while True:
         cls()
@@ -141,7 +141,7 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
 
         # check
         if check:
-            getch_stop(fd)
+            getch_stop()
             if check_answer(good_answer[1], answer, settings):
                 s_out('\x1b[1;49;32mThat\'s correct!!!\x1b[0m')
                 wait(1.5)
@@ -161,7 +161,7 @@ def multiple_choise(words, settings, mode, info = '\n', list_words = []):
                     s_inp('Press enter to continue. ')
                     return False, answer
 
-    getch_stop(fd)
+    getch_stop()
 
 # give a type question
 def type_ex(word, settings, mode, list_words = []):
@@ -200,7 +200,7 @@ def sentence(word, settings, mode, info, list_words = []):
     inp = ''
     check = False
 
-    fd = getch_start()
+    getch_start()
 
     while True:
         cls()
@@ -376,7 +376,7 @@ def sentence(word, settings, mode, info, list_words = []):
                 check = False
                 continue
 
-            getch_stop(fd)
+            getch_stop()
 
             while answer[0] == ' ':
                 answer = answer[1:]
@@ -404,5 +404,5 @@ def sentence(word, settings, mode, info, list_words = []):
                     s_inp('Press enter to continue. ')
                     return False, answer
 
-    getch_stop(fd)
+    getch_stop()
 

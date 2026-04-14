@@ -334,14 +334,15 @@ def get_scores(list_words, settings = []):
 def get_procent(score, default_points, max_default_points, number_words, advenched_points, max_advenched_points):
     if number_words > 0:
         if default_points == max_default_points:
-            procent = '\x1b[1;49;32mLearned!!!\x1b[0m'
+            procent = '\x1b[1;49;32mLearned!!!\x1b[0m        '
         elif default_points == 0:
-            procent = '-'
+            procent = '-                 '
         else:
             procent = str(round(score)) + '%' + ' (' + str(round(advenched_points * 3)) + '/' + str(round(max_advenched_points * 3)) + ')'
+            procent = procent + (' ' * (18 - len(procent)))
 
     else:
-        procent = '\x1b[1;49;33mNo score.\x1b[0m'
+        procent = '\x1b[1;49;33mNo score.\x1b[0m         '
 
     return procent
 
@@ -379,7 +380,7 @@ def show_learn_process(list_words, settings):
         if i[2] == 3:
             number_niveau_3 = number_niveau_3 + 1
 
-        if (i[4] * 4) > i[5] and i[3] < 3 and settings[3] > 0 and i[2] != 3:
+        if (i[4] * 4) > i[5] and i[3] < 3 and settings[3] > 0:
             number_difficult = number_difficult + 1
 
         if i[5] < minimum_had:
@@ -537,6 +538,12 @@ def check_answer(good_answer, answer, settings):
     if not settings[22]:
         good_answer = ch_simular_characters(good_answer)
         answer = ch_simular_characters(answer)
+
+    if answer.count(' ') != len(answer):
+        while answer[0] == ' ':
+            answer = answer[1:]
+        while answer[-1] == ' ':
+            answer = answer[:-1]
 
     return good_answer == answer
 

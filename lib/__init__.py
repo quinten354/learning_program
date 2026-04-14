@@ -1,14 +1,14 @@
 # Learning program: learn words, sentences and grammer
 # Autor:   Quinten Taminiau
-# Date:    11-01-2026
-# Version: 3.3
-# Python:  3.11
+# Date:    14-04-2026
+# Version: 4.0
+# Develop: Python 3.13 Linux
 
 import os
 import sys
 import signal
 
-from errors import log_error, ProcessKilledError, ClosedTerminalError
+from errors import log_error, ProcessKilledError, ClosedTerminalError, logpath
 
 def show_users(show_info):
     from manage_files import ch_path, get_list
@@ -80,13 +80,13 @@ if '-i' in args:
 
 # setup program
 if len(args) == 1:
-    from main import login
+    from main import main
     try:
-        login() 
+        main() 
         exit()
     except Exception as exception:
         if type(exception) != SystemExit:
-            print('\nA unexpected error occured.')
+            print('\nSomething went wrong. See \'learning_program -L\' or \'' + logpath + '\' for more info.')
             log_error()
             if os.name == 'nt' and not quiet: input('Press enter to close the program. ')
             exit()

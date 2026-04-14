@@ -1,7 +1,8 @@
-from extern.getch import getch_ as getch, start as getch_start, stop as getch_stop
+from extern.getchar import getch_ as getch, start as getch_start, stop as getch_stop
 import os
 import datetime
-from extern.save_input import save_input as sinp
+from extern.save_input import save_input as s_inp
+from extern.save_output import save_output as s_out, cls
 
 # ch size to human readable format
 def ch_size(size):
@@ -32,6 +33,12 @@ def ch_size(size):
 
 # main file browser function
 def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename = '', message = '', root = True, show_point_files = False):
+    getch_start()
+    output = browser_(path, mode, type, filename, message, root, show_point_files)
+    getch_stop()
+    return output
+
+def browser_(path = os.path.expanduser('~'), mode = 'open', type = '', filename = '', message = '', root = True, show_point_files = False):
     if os.name == 'nt':
         path = path.replace('/', '\\')
 
@@ -47,21 +54,19 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
         path = os.path.dirname(path) + ('\\' if os.name == 'nt' else '/')
 
     if mode not in ['open', 'create']:
-        print('Invalid mode, choose between open or create.')
+        s_out('Invalid mode, choose between open or create.')
         mode = 'open'
 
     if type not in ['', 'f', 'd']:
-        print('Invalid type, choose between \'\' (everything), f (file) or d (directory)')
+        s_out('Invalid type, choose between \'\' (everything), f (file) or d (directory)')
         type = ''
 
     cursor = 0
     name = ''
 
-    fd = getch_start()
-
     while True:
         # clear screen
-        print('\x1b[2J\x1b[3J\x1b[H', end = '')
+        cls()
 
         # get items in current directory
         listdir = os.listdir(path)
@@ -75,9 +80,9 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
 
         if filename != '':
             if cursor == 0:
-                print('\x1b[7;49;33m', end = '')
+                s_out('\x1b[7;49;33m', end = '')
             else:
-                print('\x1b[1;49;33m', end = '')
+                s_out('\x1b[1;49;33m', end = '')
             name_file = filename
             while len(name_file) >= max_length and max_length > 10:
                 show_name_file = name_file[:max_length] + '      \x1b[1;49;37m|\x1b[0m'
@@ -86,14 +91,14 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                 else:
                     show_name_file = show_name_file + '\x1b[1;49;33m'
                 name_file = name_file[max_length:]
-                print(show_name_file)
-            print(name_file, end = '')
+                s_out(show_name_file)
+            s_out(name_file, end = '')
 
             # complete line with spaces
-            print(' ' * (width_screen - 28 - len(name_file)), end = '')
+            s_out(' ' * (width_screen - 28 - len(name_file)), end = '')
 
-            if type == 'f' or type == '': print('Create+select a new file \x1b[0m')
-            if type == 'd': print('Create+select a new dir  \x1b[0m')
+            if type == 'f' or type == '': s_out('Create+select a new file \x1b[0m')
+            if type == 'd': s_out('Create+select a new dir  \x1b[0m')
 
         tcursor = cursor
         if filename != '':
@@ -103,7 +108,7 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
         for number in range(len(listdir)):
             item = listdir[number]
             if number == tcursor:
-                print('\x1b[7;49;1m', end = '')
+                s_out('\x1b[7;49;1m', end = '')
             # show name of item
             name_item = item
             while len(name_item) >= max_length and max_length > 10:
@@ -111,45 +116,45 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                 if number == tcursor:
                     show_name_item = show_name_item + '\x1b[7;49;1m'
                 name_item = name_item[max_length:]
-                print(show_name_item)
-            print(name_item, end = '')
+                s_out(show_name_item)
+            s_out(name_item, end = '')
 
             try:
                 # complete line with spaces
-                print(' ' * (width_screen - 28 - len(name_item)), end = '')
+                s_out(' ' * (width_screen - 28 - len(name_item)), end = '')
     
                 # show size
-                print(ch_size(os.path.getsize(path + item)), end = ' ')
+                s_out(ch_size(os.path.getsize(path + item)), end = ' ')
     
                 # show last change
-                print(str(datetime.datetime.fromtimestamp(round(os.path.getmtime(path + item)))))
+                s_out(str(datetime.datetime.fromtimestamp(round(os.path.getmtime(path + item)))))
     
             except:
-                print()
+                s_out()
 
             if number == tcursor:
-                print('\x1b[0m', end = '')
+                s_out('\x1b[0m', end = '')
 
         if len(listdir) == 0:
-            print('None items. Press \'a\' or \'h\' or arrow left to go back.')
+            s_out('None items. Press \'a\' or \'h\' or arrow left to go back.')
 
-        print()
-        print('Current dir: \'' + path + '\'')
+        s_out()
+        s_out('Current dir: \'' + path + '\'')
 
         if mode == 'open':
             if type == '':
-                print('\rSelect a file/dir and press enter. Press \'n\' to create a New dir. ' + message + ' ', end = '')
+                s_out('\rSelect a file/dir and press enter. Press \'n\' to create a New dir. ' + message + ' ', end = '')
             if type == 'f':
-                print('\rSelect a file and press enter. Press \'n\' to create a New dir. ' + message + ' ', end = '')
+                s_out('\rSelect a file and press enter. Press \'n\' to create a New dir. ' + message + ' ', end = '')
             if type == 'd':
-                print('\rSelect a dir and press enter. Press \'n\' to create a New dir. ' + message + ' ', end = '')
+                s_out('\rSelect a dir and press enter. Press \'n\' to create a New dir. ' + message + ' ', end = '')
         else:
             if type == '':
-                print('\rSelect a file/dir and press enter. Press \'f\' to select a new file. Press \'n\' to create a New dir. ' + message + ' ', end = '')
+                s_out('\rSelect a file/dir and press enter. Press \'f\' to select a new file. Press \'n\' to create a New dir. ' + message + ' ', end = '')
             if type == 'f':
-                print('\rSelect a file and press enter. Press \'f\' to select a new file. Press \'n\' to create a New dir. ' + message + ' ', end = '')
+                s_out('\rSelect a file and press enter. Press \'f\' to select a new file. Press \'n\' to create a New dir. ' + message + ' ', end = '')
             if type == 'd':
-                print('\rSelect a dir and press enter. Press \'f\' to select a new file. Press \'n\' to create a New dir. ' + message + ' ', end = '')
+                s_out('\rSelect a dir and press enter. Press \'f\' to select a new file. Press \'n\' to create a New dir. ' + message + ' ', end = '')
 
         # get user input
         ch = getch()
@@ -170,44 +175,43 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                         if len(listdir) > 0:
                             if os.path.isdir(path + listdir[tcursor]) and tcursor >= 0:
                                 try:
-                                    out = browser(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
+                                    out = browser_(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
                                     if out != '':
-                                        getch_stop(fd)
                                         return out
     
                                 except Exception as error:
-                                    print(str(error))
-                                    input('Press enter to continue. ')
+                                    if type(error) == KeyboardInterrupt:
+                                        raise KeyboardInterrupt
+                                    s_out(str(error))
+                                    s_inp('Press enter to continue. ', getch_start_stop = False)
     
                             elif filename != '' and cursor == 0:
                                 try:
                                     if type == 'f' or type == '':
-                                        getch_stop(fd)
-                                        return sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
+                                        return s_inp('Create and select a new file: ', input = filename, mode = 'path')
                                     else:
-                                        getch_stop(fd)
-                                        return sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
+                                        return s_inp('Create and select a new directory: ', input = filename, mode = 'path')
                                 except KeyboardInterrupt:
                                     continue
                         else:
-                            print('There are none items.')
-                            input('Press enter to continue. ')
+                            s_out('There are none items.')
+                            s_inp('Press enter to continue. ', getch_start_stop = False)
 
                     # left
                     if c2 == 'D':
                         if root:
                             try:
-                                out = browser(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
+                                out = browser_(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
                                 if out != '':
-                                    getch_stop(fd)
                                     return out
 
                             except Exception as error:
-                                print(error)
-                                input('Press enter to continue. ')
+                                if type(error) == KeyboardInterrupt:
+                                    raise KeyboardInterrupt
+                                s_out(error)
+                                s_inp('Press enter to continue. ', getch_start_stop = False)
 
                         else:
-                            getch_stop(fd)
                             return ''
 
             else:
@@ -222,45 +226,44 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                     if len(listdir) > 0:
                         if os.path.isdir(path + listdir[tcursor]) and tcursor >= 0:
                             try:
-                                out = browser(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
+                                out = browser_(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
                                 if out != '':
-                                    getch_stop(fd)
                                     return out
     
                             except Exception as error:
-                                print(error)
-                                input('Press enter to continue. ')
+                                if type(error) == KeyboardInterrupt:
+                                    raise KeyboardInterrupt
+                                s_out(error)
+                                s_inp('Press enter to continue. ', getch_start_stop = False)
     
                         elif filename != '' and cursor == 0:
                             try:
                                 if type == 'f' or type == '':
-                                    getch_stop(fd)
-                                    return path + sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
+                                    return path + s_inp('Create and select a new file: ', input = filename, mode = 'path', getch_start_stop = False)
                                 else:
-                                    getch_stop(fd)
-                                    return path + sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
+                                    return path + s_inp('Create and select a new directory: ', input = filename, mode = 'path', getch_start_stop = False)
                             except KeyboardInterrupt:
                                 continue
 
                     else:
-                        print('There are none items.')
-                        input('Press enter to continue. ')
+                        s_out('There are none items.')
+                        s_inp('Press enter to continue. ', getch_start_stop = False)
 
                 # left
                 if c1 == 'K':
                     if root:
                         try:
-                            out = browser(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
+                            out = browser_(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
                             if out != '':
-                                getch_stop(fd)
                                 return out
 
                         except Exception as error:
-                            print(error)
-                            input('Press enter to continue. ')
+                            if type(error) == KeyboardInterrupt:
+                                raise KeyboardInterrupt
+                            s_out(error)
+                            s_inp('Press enter to continue. ', getch_start_stop = False)
 
                     else:
-                        getch_stop(fd)
                         return ''
 
         if ch == 'k' or ch == 'K' or ch == 'w' or ch == 'W':
@@ -271,55 +274,53 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
             if len(listdir) > 0:
                 if os.path.isdir(path + listdir[tcursor]) and tcursor >= 0:
                     try:
-                        out = browser(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
+                        out = browser_(path + listdir[tcursor] + '/', mode, type, filename, message, root = False, show_point_files = show_point_files)
                         if out != '':
-                            getch_stop(fd)
                             return out
     
                     except Exception as error:
-                        print(error)
-                        input('Press enter to continue. ')
+                        if type(error) == KeyboardInterrupt:
+                            raise KeyboardInterrupt
+                        s_out(error)
+                        s_inp('Press enter to continue. ', getch_start_stop = False)
     
                 elif filename != '' and cursor == 0:
                     try:
                         if type == 'f' or type == '':
-                            getch_stop(fd)
-                            return path + sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
+                            return path + s_inp('Create and select a new file: ', input = filename, mode = 'path', getch_start_stop = False)
                         else:
-                            getch_stop(fd)
-                            return path + sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
+                            return path + s_inp('Create and select a new directory: ', input = filename, mode = 'path', getch_start_stop = False)
                     except KeyboardInterrupt:
                         continue
 
             else:
-                print('There are none items.')
-                input('Press enter to continue. ')
+                s_out('There are none items.')
+                s_inp('Press enter to continue. ', getch_start_stop = False)
 
         if ch == 'h' or ch == 'H' or ch == 'a' or ch == 'A':
             if root:
                 try:
-                    out = browser(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
+                    out = browser_(os.path.dirname(path[:-1]), mode, type, filename, message, root = True, show_point_files = show_point_files)
                     if out != '':
-                        getch_stop(fd)
                         return out
 
                 except Exception as error:
-                    print(error)
-                    input('Press enter to continue. ')
+                    if type(error) == KeyboardInterrupt:
+                        raise KeyboardInterrupt
+                    s_out(error)
+                    s_inp('Press enter to continue. ', getch_start_stop = False)
 
             else:
-                getch_stop(fd)
                 return ''
 
         if ch == '\n':
+            s_out()
             if filename != '' and tcursor == -1:
                 try:
                     if type == 'f' or type == '':
-                        getch_stop(fd)
-                        return path + sinp('Create and select a new file: ', input = filename, invalid_characters = ['/', '\\'])
+                        return path + s_inp('Create and select a new file: ', input = filename, mode = 'path', getch_start_stop = False)
                     else:
-                        getch_stop(fd)
-                        return path + sinp('Create and select a new directory: ', input = filename, invalid_characters = ['/', '\\'])
+                        return path + s_inp('Create and select a new directory: ', input = filename, mode = 'path', getch_start_stop = False)
                 except KeyboardInterrupt:
                     continue
             elif len(listdir) > 0:
@@ -327,26 +328,23 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
                 try:
                     if mode == 'open':
                         if type == '' or (type == 'f' and isfile) or (type == 'd' and not isfile):
-                            sinp('Press enter to open ' + ('file' if isfile else 'directory') + ' \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
-                            getch_stop(fd)
+                            s_inp('Press enter to open ' + ('file' if isfile else 'directory') + ' \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
                             return path + listdir[tcursor]
                         else:
-                            print('This is a ' + ('file' if isfile else 'directory') + '.')
+                            s_out('This is a ' + ('file' if isfile else 'directory') + '.')
                     else:
                         if isfile and (type == '' or type == 'f'):
-                            sinp('Press enter if you want to overwrite file \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
-                            getch_stop(fd)
+                            s_inp('Press enter if you want to overwrite file \'' + path + listdir[tcursor] + '\'. Press ctrl + c to cancel. ', getch_start_stop = False)
                             return path + listdir[tcursor]
                         elif (not isfile) and (type == '' or type == 'd'):
-                            sinp('Press enter to open directory \'' + path + listdir[tcursor] + '\'. Any files in this directory can be overwritten. Press ctrl + c to cancel. ', getch_start_stop = False)
-                            getch_stop(fd)
+                            s_inp('Press enter to open directory \'' + path + listdir[tcursor] + '\'. Any files in this directory can be overwritten. Press ctrl + c to cancel. ', getch_start_stop = False)
                             return path + listdir[tcursor]
                 except KeyboardInterrupt:
                     continue
             
             else:
-                print('There are none items.')
-                input('Press enter to continue. ')
+                s_out('There are none items.')
+                s_inp('Press enter to continue. ', getch_start_stop = False)
             
         if ch == '\x03':
             raise KeyboardInterrupt
@@ -355,20 +353,40 @@ def browser(path = os.path.expanduser('~'), mode = 'open', type = '', filename =
         if ch == '.':
             show_point_files = not show_point_files
         if ch == 'f' and mode == 'create':
-            getch_stop(fd)
             try:
-                return path + sinp('Create a new file: ', input = filename, invalid_characters = ['/', '\\'])
+                return path + s_inp('Create a new file: ', input = filename, invalid_characters = ['/', '\\'], getch_start_stop = False)
             except KeyboardInterrupt:
-                fd = getch_start()
                 continue
         if ch == 'n':
-            getch_stop(fd)
             try:
-                inp = sinp('Create a new directory: ', invalid_characters = ['/', '\\'])
+                inp = s_inp('Create a new directory: ', invalid_characters = ['/', '\\'], getch_start_stop = False)
             except KeyboardInterrupt:
-                fd = getch_start()
                 continue
             os.mkdir(path + inp)
+
+        if ch == ':':
+            try:
+                s_out()
+                to_dir = s_inp('Go to directory   > ', getch_start_stop = False)
+                if os.path.exists(to_dir):
+                    if os.path.isdir(to_dir):
+                        out = browser_(to_dir, mode, type, filename, message, root = True, show_point_files = show_point_files)
+                        if out != '':
+                            return out
+
+                    else:
+                        s_out('Can\'t find directory.')
+                        s_inp('Press enter to continue. ', getch_start_stop = False)
+
+                else:
+                    s_out('Can\'t find directory.')
+                    s_inp('Press enter to continue. ', getch_start_stop = False)
+
+            except Exception as error:
+                if type(error) == KeyboardInterrupt:
+                    raise KeyboardInterrupt
+                s_out(error)
+                s_inp('Press enter to continue. ', getch_start_stop = False)
 
         if cursor < 0:
             if filename == '':
