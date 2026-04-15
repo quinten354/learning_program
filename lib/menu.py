@@ -410,7 +410,9 @@ def main_menu(username, userinfo):
 
             s_out()
 
-            #list_names = []
+            list_names = []
+            for item in item_information:
+                list_names.append(item[0])
 
             # show all
             ulines = 0
@@ -447,7 +449,7 @@ def main_menu(username, userinfo):
             if count > 0:
                 s_out('_' * columns)
                 s_out(' ' * columns)
-                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available    Selected: ' + str(selection) + '    Lines: ' + str(lines) + '    Start number: ' + str(start_number) + '    Ulines: ' + str(ulines)
+                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available'
                 s_out(search_info + (' ' * (columns - len(search_info))))
                 s_out(' ' * columns)
                 #lines = lines - 4
