@@ -4,8 +4,7 @@ import sys
 
 if os.name != 'nt':
     import termios
-
-default = termios.tcgetattr(sys.stdin)
+    default = termios.tcgetattr(sys.stdin)
 
 # get single character
 def getch(echo = False):
