@@ -82,7 +82,7 @@ def main_menu(username, userinfo):
             warned_items = []
         # get the list with the hided items
         hided_items = get_list(username, 'hided_items', True)
-        # get the list with the timed items
+        # get the list with the item settings
         item_settings = get_list(username, 'item_settings')
         # get the number of columns
         columns = os.get_terminal_size().columns
@@ -150,6 +150,8 @@ def main_menu(username, userinfo):
             for hided_item in hided_items:
                 if hided_item in list_names:
                     list_names.remove(hided_item)
+
+        # TODO: sort?
 
         # sort names
         #if settings[15] == 1: list_names.sort()
@@ -383,6 +385,10 @@ def main_menu(username, userinfo):
         if settings[26] and len(item_information) > 0:
             lines = lines - 1
 
+        list_names_sorted = []
+        for item in item_information:
+            list_names_sorted.append(item[0])
+
         selection = 0
         selected = []
         start_number = 0
@@ -410,9 +416,7 @@ def main_menu(username, userinfo):
 
             s_out()
 
-            list_names = []
-            for item in item_information:
-                list_names.append(item[0])
+            #list_names = []
 
             # show all
             ulines = 0
@@ -449,7 +453,7 @@ def main_menu(username, userinfo):
             if count > 0:
                 s_out('_' * columns)
                 s_out(' ' * columns)
-                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available'
+                search_info = (str(count) + ' agreement' + ('s' if count > 1 else '') + ' with your search \'' + str(txt_search) + '\'    ' if show_agreements else '') + str(len(list_names_sorted)) + (' showed    ' if not show_agreements else ' showed without your search    ') + str(number_items) + ' available'
                 s_out(search_info + (' ' * (columns - len(search_info))))
                 s_out(' ' * columns)
                 #lines = lines - 4
@@ -828,8 +832,8 @@ def main_menu(username, userinfo):
 
             # when the selection goes out of the screen, place it on the other site back
             if selection < 0:
-                selection = len(list_names) - 1
-            if selection >= len(list_names):
+                selection = len(list_names_sorted) - 1
+            if selection >= len(list_names_sorted):
                 selection = 0
 
             #while selection < (start_number + (lines / 2)) and start_number > 0:
@@ -843,7 +847,7 @@ def main_menu(username, userinfo):
             # do actions with selection or selected items
             if choice == '\n':
                 try:
-                    if len(list_names) == 0:
+                    if len(list_names_sorted) == 0:
                         continue
 
                     if len(selected) == 0:
@@ -854,6 +858,9 @@ def main_menu(username, userinfo):
                             s_out('There occured an error...')
                             wait(1.5)
                             continue
+
+                        s_out(list_names_sorted[selection])
+                        s_out()
 
                         s_out('Delete --> d')
                         s_out('Change --> c')
@@ -880,20 +887,20 @@ def main_menu(username, userinfo):
                         if choice == 'd':
                             try:
                                 # move to trash
-                                move(username, 'items/' + list_names[selection], 'trash/')
+                                move(username, 'items/' + list_names_sorted[selection], 'trash/')
                             except:
                                 log_error()
                                 cls()
                                 s_out('Can\'t move to trash.')
                                 # check the item already exist in trash
-                                if list_names[selection] in os.listdir(ch_path('~/' + username + '/trash/')):
+                                if list_names_sorted[selection] in os.listdir(ch_path('~/' + username + '/trash/')):
                                     # ask
-                                    if s_inp('\'' + list_names[selection] + '\' already exist in the trash. Do you want to replace it? (y/n)   > ') == 'y':
+                                    if s_inp('\'' + list_names_sorted[selection] + '\' already exist in the trash. Do you want to replace it? (y/n)   > ') == 'y':
                                         try:
                                             # delete old item out trash
-                                            delete_file(username, 'trash/' + list_names[selection])
+                                            delete_file(username, 'trash/' + list_names_sorted[selection])
                                             # move item to trash
-                                            move(username, 'items/' + list_names[selection], 'trash/')
+                                            move(username, 'items/' + list_names_sorted[selection], 'trash/')
                                         except:
                                             log_error()
                                             s_out()
@@ -906,7 +913,7 @@ def main_menu(username, userinfo):
                         # change item
                         if choice == 'c':
                             try:
-                                change_list(username, list_names[selection], settings)
+                                change_list(username, list_names_sorted[selection], settings)
                             except KeyboardInterrupt:
                                 cls()
                                 s_out('Back to home.')
@@ -916,7 +923,7 @@ def main_menu(username, userinfo):
                         # learn item
                         if choice == 'l':
                             try:
-                                learn(username, list_names[selection], settings)
+                                learn(username, list_names_sorted[selection], settings)
                             except KeyboardInterrupt:
                                 cls()
                                 s_out('Back to home.')
@@ -925,7 +932,7 @@ def main_menu(username, userinfo):
 
                         if choice == 'o':
                             try:
-                                item_options(username, list_names[selection], settings)
+                                item_options(username, list_names_sorted[selection], settings)
                             except KeyboardInterrupt:
                                 cls()
                                 s_out('Back to home.')
@@ -933,18 +940,18 @@ def main_menu(username, userinfo):
                                 continue
                         
                         if choice == 'i':
-                            get_item_information(username, list_names[selection], settings)
+                            get_item_information(username, list_names_sorted[selection], settings)
                         
                         if choice == 'r':
-                            review_and_learn(username, list_names[selection], settings)
+                            review_and_learn(username, list_names_sorted[selection], settings)
                         
                         if choice == 's':
-                            split_list(username, list_names[selection], settings)
+                            split_list(username, list_names_sorted[selection], settings)
 
                         if choice == 'e':
-                            location = browser(filename = list_names[selection], mode = 'create', type = 'f', message = 'Select a file to export')
+                            location = browser(filename = list_names_sorted[selection], mode = 'create', type = 'f', message = 'Select a file to export')
                             try:
-                                shutil.copy(ch_path('~/' + username + '/items/' + list_names[selection]), location)
+                                shutil.copy(ch_path('~/' + username + '/items/' + list_names_sorted[selection]), location)
                             except:
                                 log_error()
                                 s_out('Something went wrong.')
@@ -953,7 +960,7 @@ def main_menu(username, userinfo):
                                 s_out('Your item is exported!')
 
                         if choice == 'L':
-                            learn_all(username, list_names[selection], settings)
+                            learn_all(username, list_names_sorted[selection], settings)
 
                         break
 
@@ -996,7 +1003,7 @@ def main_menu(username, userinfo):
                             list_selected_words = []
 
                             for item in selected:
-                                list_selected_words = list_selected_words + get_list(username, 'items/' + list_names[item])
+                                list_selected_words = list_selected_words + get_list(username, 'items/' + list_names_sorted[item])
 
                             if del_process == 'y':
                                 for number in range(len(list_selected_words)):
@@ -1015,7 +1022,7 @@ def main_menu(username, userinfo):
                         if choice == 'r' or choice == 't':
                             list_selected_words = []
                             for item in selected:
-                                list_selected_words = list_selected_words + get_list(username, 'items/' + list_names[item])
+                                list_selected_words = list_selected_words + get_list(username, 'items/' + list_names_sorted[item])
 
                             for number in range(len(list_words)):
                                 list_selected_words[number][2], list_selected_words[number][3], list_selected_words[number][4], list_selected_words[number][5] = 0, 0, 0, 0
@@ -1047,9 +1054,9 @@ def main_menu(username, userinfo):
                                     # check the input is a number
                                     elif number.isdigit():
                                         # check the item exist
-                                        if 0 < int(number) <= (len(list_names)):
+                                        if 0 < int(number) <= (len(list_names_sorted)):
                                             if (selection) not in errors:
-                                                for word in get_list(username, 'items/' + list_names[selection]):
+                                                for word in get_list(username, 'items/' + list_names_sorted[selection]):
                                                     list_selected_words.append(word)
                                             else:
                                                 s_out('\x1b[1;49;31mThat can\'t. The data in this item is invalid.\x1b[0m')
@@ -1061,9 +1068,9 @@ def main_menu(username, userinfo):
                                         # check the numbers are numbers
                                         if numbers[0].isdigit() and numbers[1].isdigit():
                                             for number in range(int(numbers[0]), int(numbers[1]) + 1):
-                                                if 0 < int(number) <= len(list_names):
+                                                if 0 < int(number) <= len(list_names_sorted):
                                                     if (selection) not in errors:
-                                                        for word in get_list(username, 'items/' + list_names[number - 1]):
+                                                        for word in get_list(username, 'items/' + list_names_sorted[number - 1]):
                                                             list_selected_words.append(word)
 
                                                     else:
